@@ -26,6 +26,4 @@ private slots:
     void actionExit();
 };
 
-
-
 #endif // MAINWINDOW_H

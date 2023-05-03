@@ -3,6 +3,7 @@
 
 #include <QtSql>
 #include <map>
+#include "globals.h"
 
 using namespace std;
 
@@ -11,11 +12,13 @@ public:
     DbManager() {}
 
     bool initialize();
+
+    QSqlDatabase db;
+
 private:
     map<QLatin1String, QLatin1String> sqlCreateTable = {
-        {QLatin1String("entry"), QLatin1String("create table entry(id integer primary key, type int)")}
+        {GlobalValues::SQL_TABLENAME_ENTRIES, QLatin1String("create table entry(id integer primary key, type int);")}
     };
-    QSqlDatabase db;
 
     bool showError(const QString &message);
     bool showError(const QSqlError &err, QWidget* parent = nullptr);
