@@ -14,17 +14,21 @@ MainWindow::MainWindow(QWidget *parent)
 
 
     model = new QSqlRelationalTableModel(ui->tableView);
-    model->setTable(GlobalValues::SQL_TABLENAME_ENTRIES);
+    model->setTable(GlobalValues::SQL_TABLENAME_ENTRY);
 
-    ui->tableView->setColumnHidden(model->fieldIndex("id"), true);
-    model->setHeaderData(model->fieldIndex("type"), Qt::Horizontal, QObject::tr("Interval"));
+    model->setHeaderData(model->fieldIndex(GlobalValues::SQL_COLUMNNAME_DESCRIPTION), Qt::Horizontal, QObject::tr("description"));
+    model->setHeaderData(model->fieldIndex(GlobalValues::SQL_COLUMNNAME_TYPE), Qt::Horizontal, QObject::tr("schedule"));
+
+    ui->tableView->setModel(model);
+
+    ui->tableView->setColumnHidden(model->fieldIndex(GlobalValues::SQL_COLUMNNAME_ID), true);
+    ui->tableView->setColumnHidden(model->fieldIndex(GlobalValues::SQL_COLUMNNAME_CATEGORY_ID), true);
 
 //    if (!model->select()) {
 //        DbManger::showError(model->lastError());
 //        return;
 //    }
 
-    ui->tableView->setModel(model);
 
 
     connect(ui->actionExit, SIGNAL(triggered()), this, SLOT(actionExit()));

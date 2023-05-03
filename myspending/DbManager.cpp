@@ -7,7 +7,7 @@ bool DbManager::initialize() {
         return false;
     }
 
-    db = QSqlDatabase::addDatabase("QSQLITE");
+    db = QSqlDatabase::addDatabase(GlobalValues::SQL_CONNECTION_DEFAULT_NAME);
     db.setDatabaseName(":memory:");
 
     if (!db.open()) {
@@ -24,14 +24,12 @@ bool DbManager::initialize() {
 
 
 bool DbManager::driverInstalled() {
-    if (!QSqlDatabase::drivers().contains("QSQLITE")) {
+    if (!QSqlDatabase::drivers().contains(GlobalValues::SQL_CONNECTION_DEFAULT_NAME)) {
         return showError("Cannot launch " + GlobalValues::APP_NAME + " without SQLite driver");
     }
 
     return true;
 }
-
-#include <iostream>
 
 QSqlError DbManager::createTables() {
     QStringList tables = db.tables();
