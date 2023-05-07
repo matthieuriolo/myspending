@@ -18,6 +18,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     model->setHeaderData(model->fieldIndex(GlobalValues::SQL_COLUMNNAME_DESCRIPTION), Qt::Horizontal, QObject::tr("description"));
     model->setHeaderData(model->fieldIndex(GlobalValues::SQL_COLUMNNAME_TYPE), Qt::Horizontal, QObject::tr("schedule"));
+    model->setHeaderData(model->fieldIndex(GlobalValues::SQL_COLUMNNAME_VALUE), Qt::Horizontal, QObject::tr("value"));
 
     ui->tableView->setModel(model);
 
