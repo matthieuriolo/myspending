@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "DbManager.h"
-
+#include "messagebox.h"
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -25,10 +25,10 @@ MainWindow::MainWindow(QWidget *parent)
     ui->tableView->setColumnHidden(model->fieldIndex(GlobalValues::SQL_COLUMNNAME_ID), true);
     ui->tableView->setColumnHidden(model->fieldIndex(GlobalValues::SQL_COLUMNNAME_CATEGORY_ID), true);
 
-//    if (!model->select()) {
-//        DbManger::showError(model->lastError());
-//        return;
-//    }
+    if (!model->select()) {
+        MessageBox::errorSQL(model->lastError(), this);
+        return;
+    }
 
 
 
