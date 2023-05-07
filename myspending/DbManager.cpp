@@ -1,7 +1,8 @@
 #include "DbManager.h"
-#include <QMessageBox>
 #include <QtSql>
 #include <vector>
+#include "messagebox.h"
+
 
 bool DbManager::initialize() {
     if (!driverInstalled()) {
@@ -12,17 +13,20 @@ bool DbManager::initialize() {
     db.setDatabaseName(":memory:");
 
     if (!db.open()) {
-        return showError(db.lastError());
+        MessageBox::errorSQL(db.lastError());
+        return false;
     }
 
     QSqlError q = createTables();
     if (q.type() != QSqlError::NoError) {
-        return showError(q);
+        MessageBox::errorSQL(q);
+        return false;
     }
 
     q = testData();
     if (q.type() != QSqlError::NoError) {
-        return showError(q);
+        MessageBox::errorSQL(q);
+        return false;
     }
 
     return true;
@@ -31,7 +35,8 @@ bool DbManager::initialize() {
 
 bool DbManager::driverInstalled() {
     if (!QSqlDatabase::drivers().contains(GlobalValues::SQL_CONNECTION_DEFAULT_NAME)) {
-        return showError("Cannot launch " + GlobalValues::APP_NAME + " without SQLite driver");
+        MessageBox::errorMissingSQLDriver();
+        return false;
     }
 
     return true;
@@ -70,14 +75,4 @@ QSqlError DbManager::createTables() {
     }
 
     return QSqlError();
-}
-
-bool DbManager::showError(const QString &message) {
-    QMessageBox::critical(nullptr, GlobalValues::APP_NAME, message);
-    return false;
-}
-
-bool DbManager::showError(const QSqlError &err, QWidget* parent) {
-    QMessageBox::critical(parent, GlobalValues::APP_NAME, "Error in database with message: " + err.text());
-    return false;
 }

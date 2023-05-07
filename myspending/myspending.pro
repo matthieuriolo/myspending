@@ -11,12 +11,14 @@ CONFIG += c++11
 SOURCES += \
     DbManager.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    messagebox.cpp
 
 HEADERS += \
     DbManager.h \
     globals.h \
-    mainwindow.h
+    mainwindow.h \
+    messagebox.h
 
 FORMS += \
     mainwindow.ui

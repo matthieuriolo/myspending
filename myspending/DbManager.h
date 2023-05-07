@@ -30,9 +30,6 @@ private:
         }
     };
 
-    bool showError(const QString &message);
-    bool showError(const QSqlError &err, QWidget* parent = nullptr);
-
     bool driverInstalled();
     QSqlError createTables();
     QSqlError testData();
