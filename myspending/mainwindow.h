@@ -20,7 +20,8 @@ public:
 
 private:
     Ui::MainWindow *ui;
-    QSqlTableModel* model;
+    QSqlTableModel* modelEntry;
+    QSqlTableModel* modelCategory;
 
 private slots:
     void actionExit();

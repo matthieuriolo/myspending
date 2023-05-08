@@ -13,23 +13,33 @@ MainWindow::MainWindow(QWidget *parent)
     ui->splitter->setChildrenCollapsible(false);
 
 
-    model = new QSqlRelationalTableModel(ui->tableView);
-    model->setTable(GlobalValues::SQL_TABLENAME_ENTRY);
+    modelCategory = new QSqlRelationalTableModel(ui->listView);
+    modelCategory->setTable(GlobalValues::SQL_TABLENAME_CATEGORY);
 
-    model->setHeaderData(model->fieldIndex(GlobalValues::SQL_COLUMNNAME_DESCRIPTION), Qt::Horizontal, QObject::tr("description"));
-    model->setHeaderData(model->fieldIndex(GlobalValues::SQL_COLUMNNAME_TYPE), Qt::Horizontal, QObject::tr("schedule"));
-    model->setHeaderData(model->fieldIndex(GlobalValues::SQL_COLUMNNAME_VALUE), Qt::Horizontal, QObject::tr("value"));
+    ui->listView->setModel(modelCategory);
+    ui->listView->setModelColumn(modelCategory->fieldIndex(GlobalValues::SQL_COLUMNNAME_NAME));
 
-    ui->tableView->setModel(model);
-
-    ui->tableView->setColumnHidden(model->fieldIndex(GlobalValues::SQL_COLUMNNAME_ID), true);
-    ui->tableView->setColumnHidden(model->fieldIndex(GlobalValues::SQL_COLUMNNAME_CATEGORY_ID), true);
-
-    if (!model->select()) {
-        MessageBox::errorSQL(model->lastError(), this);
+    if (!modelCategory->select()) {
+        MessageBox::errorSQL(modelCategory->lastError(), this);
         return;
     }
 
+    modelEntry = new QSqlRelationalTableModel(ui->tableView);
+    modelEntry->setTable(GlobalValues::SQL_TABLENAME_ENTRY);
+
+    modelEntry->setHeaderData(modelEntry->fieldIndex(GlobalValues::SQL_COLUMNNAME_DESCRIPTION), Qt::Horizontal, QObject::tr("description"));
+    modelEntry->setHeaderData(modelEntry->fieldIndex(GlobalValues::SQL_COLUMNNAME_TYPE), Qt::Horizontal, QObject::tr("schedule"));
+    modelEntry->setHeaderData(modelEntry->fieldIndex(GlobalValues::SQL_COLUMNNAME_VALUE), Qt::Horizontal, QObject::tr("value"));
+
+    ui->tableView->setModel(modelEntry);
+
+    ui->tableView->setColumnHidden(modelEntry->fieldIndex(GlobalValues::SQL_COLUMNNAME_ID), true);
+    ui->tableView->setColumnHidden(modelEntry->fieldIndex(GlobalValues::SQL_COLUMNNAME_CATEGORY_ID), true);
+
+    if (!modelEntry->select()) {
+        MessageBox::errorSQL(modelEntry->lastError(), this);
+        return;
+    }
 
 
     connect(ui->actionExit, SIGNAL(triggered()), this, SLOT(actionExit()));
@@ -42,7 +52,7 @@ void MainWindow::actionExit() {
 
 MainWindow::~MainWindow()
 {
-    delete model;
+    delete modelEntry;
     delete ui;
 }
 
