@@ -23,11 +23,12 @@ private:
     QSqlRelationalTableModel* modelEntry;
     QSqlTableModel* modelCategory;
 
-
+    void preselectFirstCategory();
+    void selectCategory(QModelIndex* index);
 
 private slots:
     void actionExit();
-    void categoryChanged(QItemSelection currentSelection);
+    void categorySelectionChanged(QItemSelection currentSelection);
 };
 
 #endif // MAINWINDOW_H

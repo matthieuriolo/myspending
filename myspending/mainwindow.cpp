@@ -8,11 +8,11 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
+    // setup UI behaviour
     ui->setupUi(this);
-
     ui->splitter->setChildrenCollapsible(false);
 
-
+    // setup category view
     modelCategory = new QSqlTableModel(ui->listView);
     modelCategory->setTable(GlobalValues::SQL_TABLENAME_CATEGORY);
 
@@ -25,6 +25,7 @@ MainWindow::MainWindow(QWidget *parent)
         return;
     }
 
+    // setup entry view
     modelEntry = new QSqlRelationalTableModel(ui->tableView);
     modelEntry->setTable(GlobalValues::SQL_TABLENAME_ENTRY);
 
@@ -45,22 +46,42 @@ MainWindow::MainWindow(QWidget *parent)
         return;
     }
 
-    connect(ui->listView->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)), this, SLOT(categoryChanged(QItemSelection)));
+    preselectFirstCategory();
 
+    // setup slots
+    connect(ui->listView->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)), this, SLOT(categorySelectionChanged(QItemSelection)));
     connect(ui->actionExit, SIGNAL(triggered()), this, SLOT(actionExit()));
 }
 
-void MainWindow::categoryChanged(QItemSelection currentSelection)
+
+void MainWindow::preselectFirstCategory()
+{
+    if (modelCategory->rowCount()) {
+        ui->listView->setCurrentIndex(modelCategory->index(0, modelCategory->fieldIndex(GlobalValues::SQL_COLUMNNAME_NAME)));
+        auto idx = ui->listView->currentIndex();
+        selectCategory(&idx);
+    } else {
+        selectCategory(nullptr);
+    }
+}
+
+void MainWindow::selectCategory(QModelIndex* index)
+{
+    qlonglong pk = GlobalValues::SQL_VALUE_NONEXISTING_PK;
+    if (index != nullptr) {
+        auto record = modelCategory->record(index->row());
+        pk = record.value(GlobalValues::SQL_COLUMNNAME_ID).toLongLong();
+    }
+    modelEntry->setFilter(GlobalValues::SQL_COLUMNNAME_CATEGORY_ID + " = " + QString::number(pk));
+}
+
+void MainWindow::categorySelectionChanged(QItemSelection currentSelection)
 {
     if(currentSelection.isEmpty()) {
-        modelEntry->setFilter(GlobalValues::SQL_COLUMNNAME_CATEGORY_ID + " = " + QString::number(GlobalValues::SQL_VALUE_NONEXISTING_PK));
-        return;
+        selectCategory(nullptr);
+    } else {
+        selectCategory(&currentSelection.indexes().front());
     }
-
-    auto currentIndex = currentSelection.indexes().front();
-    auto record = modelCategory->record(currentIndex.row());
-    auto pk = record.value(GlobalValues::SQL_COLUMNNAME_ID).toLongLong();
-    modelEntry->setFilter(GlobalValues::SQL_COLUMNNAME_CATEGORY_ID + " = " + QString::number(pk));
 }
 
 void MainWindow::actionExit() {
