@@ -20,6 +20,8 @@ namespace GlobalValues {
     static const QString SQL_COLUMNNAME_NAME = "name";
     static const QString SQL_COLUMNNAME_DESCRIPTION = "description";
     static const QString SQL_COLUMNNAME_VALUE = "value";
+
+    static const qlonglong SQL_VALUE_NONEXISTING_PK = -1;
 }
 
 #endif // GLOBALS_H

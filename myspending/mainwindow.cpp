@@ -45,13 +45,22 @@ MainWindow::MainWindow(QWidget *parent)
         return;
     }
 
-    connect(ui->listView->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)), this, SLOT(categoryChanged()));
+    connect(ui->listView->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)), this, SLOT(categoryChanged(QItemSelection)));
 
     connect(ui->actionExit, SIGNAL(triggered()), this, SLOT(actionExit()));
 }
 
-void MainWindow::categoryChanged() {
-    qDebug() << "item has been changed";
+void MainWindow::categoryChanged(QItemSelection currentSelection)
+{
+    if(currentSelection.isEmpty()) {
+        modelEntry->setFilter(GlobalValues::SQL_COLUMNNAME_CATEGORY_ID + " = " + QString::number(GlobalValues::SQL_VALUE_NONEXISTING_PK));
+        return;
+    }
+
+    auto currentIndex = currentSelection.indexes().front();
+    auto record = modelCategory->record(currentIndex.row());
+    auto pk = record.value(GlobalValues::SQL_COLUMNNAME_ID).toLongLong();
+    modelEntry->setFilter(GlobalValues::SQL_COLUMNNAME_CATEGORY_ID + " = " + QString::number(pk));
 }
 
 void MainWindow::actionExit() {
@@ -60,6 +69,7 @@ void MainWindow::actionExit() {
 
 MainWindow::~MainWindow()
 {
+    delete modelCategory;
     delete modelEntry;
     delete ui;
 }

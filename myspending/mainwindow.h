@@ -27,7 +27,7 @@ private:
 
 private slots:
     void actionExit();
-    void categoryChanged();
+    void categoryChanged(QItemSelection currentSelection);
 };
 
 #endif // MAINWINDOW_H
