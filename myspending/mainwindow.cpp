@@ -12,6 +12,11 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     ui->splitter->setChildrenCollapsible(false);
 
+    ui->actionDelete_category->setEnabled(false);
+    ui->actionDelete_entry->setEnabled(false);
+    ui->actionNew_entry->setEnabled(false);
+
+
     // setup category view
     modelCategory = new QSqlTableModel(ui->categoryView);
     modelCategory->setTable(GlobalValues::SQL_TABLENAME_CATEGORY);
@@ -50,6 +55,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     // setup slots
     connect(ui->categoryView->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)), this, SLOT(categorySelectionChanged(QItemSelection)));
+    connect(ui->entryView->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)), this, SLOT(entrySelectionChanged(QItemSelection)));
+
     connect(ui->actionExit, SIGNAL(triggered()), this, SLOT(actionExit()));
 }
 
@@ -71,7 +78,12 @@ void MainWindow::selectCategory(QModelIndex* index)
     if (index != nullptr) {
         auto record = modelCategory->record(index->row());
         pk = record.value(GlobalValues::SQL_COLUMNNAME_ID).toLongLong();
+        ui->actionDelete_category->setEnabled(true);
+    } else {
+        ui->actionDelete_category->setEnabled(false);
     }
+
+    ui->actionDelete_entry->setEnabled(false);
     modelEntry->setFilter(GlobalValues::SQL_COLUMNNAME_CATEGORY_ID + " = " + QString::number(pk));
 }
 
@@ -81,6 +93,15 @@ void MainWindow::categorySelectionChanged(QItemSelection currentSelection)
         selectCategory(nullptr);
     } else {
         selectCategory(&currentSelection.indexes().front());
+    }
+}
+
+void MainWindow::entrySelectionChanged(QItemSelection currentSelection)
+{
+    if(currentSelection.isEmpty()) {
+        ui->actionDelete_entry->setEnabled(false);
+    } else {
+        ui->actionDelete_entry->setEnabled(true);
     }
 }
 
