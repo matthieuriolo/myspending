@@ -13,12 +13,12 @@ MainWindow::MainWindow(QWidget *parent)
     ui->splitter->setChildrenCollapsible(false);
 
     // setup category view
-    modelCategory = new QSqlTableModel(ui->listView);
+    modelCategory = new QSqlTableModel(ui->categoryView);
     modelCategory->setTable(GlobalValues::SQL_TABLENAME_CATEGORY);
 
-    ui->listView->setModel(modelCategory);
-    ui->listView->setModelColumn(modelCategory->fieldIndex(GlobalValues::SQL_COLUMNNAME_NAME));
-    ui->listView->setSelectionMode(QAbstractItemView::SelectionMode::SingleSelection);
+    ui->categoryView->setModel(modelCategory);
+    ui->categoryView->setModelColumn(modelCategory->fieldIndex(GlobalValues::SQL_COLUMNNAME_NAME));
+    ui->categoryView->setSelectionMode(QAbstractItemView::SelectionMode::SingleSelection);
 
     if (!modelCategory->select()) {
         MessageBox::errorSQL(modelCategory->lastError(), this);
@@ -26,7 +26,7 @@ MainWindow::MainWindow(QWidget *parent)
     }
 
     // setup entry view
-    modelEntry = new QSqlRelationalTableModel(ui->tableView);
+    modelEntry = new QSqlRelationalTableModel(ui->entryView);
     modelEntry->setTable(GlobalValues::SQL_TABLENAME_ENTRY);
 
     modelEntry->setRelation(modelCategory->fieldIndex(GlobalValues::SQL_COLUMNNAME_CATEGORY_ID), QSqlRelation(GlobalValues::SQL_TABLENAME_CATEGORY, GlobalValues::SQL_COLUMNNAME_ID, GlobalValues::SQL_COLUMNNAME_NAME));
@@ -35,11 +35,11 @@ MainWindow::MainWindow(QWidget *parent)
     modelEntry->setHeaderData(modelEntry->fieldIndex(GlobalValues::SQL_COLUMNNAME_TYPE), Qt::Horizontal, QObject::tr("schedule"));
     modelEntry->setHeaderData(modelEntry->fieldIndex(GlobalValues::SQL_COLUMNNAME_VALUE), Qt::Horizontal, QObject::tr("value"));
 
-    ui->tableView->setModel(modelEntry);
-    ui->tableView->setSelectionMode(QAbstractItemView::SelectionMode::SingleSelection);
+    ui->entryView->setModel(modelEntry);
+    ui->entryView->setSelectionMode(QAbstractItemView::SelectionMode::SingleSelection);
 
-    ui->tableView->setColumnHidden(modelEntry->fieldIndex(GlobalValues::SQL_COLUMNNAME_ID), true);
-    ui->tableView->setColumnHidden(modelEntry->fieldIndex(GlobalValues::SQL_COLUMNNAME_CATEGORY_ID), true);
+    ui->entryView->setColumnHidden(modelEntry->fieldIndex(GlobalValues::SQL_COLUMNNAME_ID), true);
+    ui->entryView->setColumnHidden(modelEntry->fieldIndex(GlobalValues::SQL_COLUMNNAME_CATEGORY_ID), true);
 
     if (!modelEntry->select()) {
         MessageBox::errorSQL(modelEntry->lastError(), this);
@@ -49,7 +49,7 @@ MainWindow::MainWindow(QWidget *parent)
     preselectFirstCategory();
 
     // setup slots
-    connect(ui->listView->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)), this, SLOT(categorySelectionChanged(QItemSelection)));
+    connect(ui->categoryView->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)), this, SLOT(categorySelectionChanged(QItemSelection)));
     connect(ui->actionExit, SIGNAL(triggered()), this, SLOT(actionExit()));
 }
 
@@ -57,8 +57,8 @@ MainWindow::MainWindow(QWidget *parent)
 void MainWindow::preselectFirstCategory()
 {
     if (modelCategory->rowCount()) {
-        ui->listView->setCurrentIndex(modelCategory->index(0, modelCategory->fieldIndex(GlobalValues::SQL_COLUMNNAME_NAME)));
-        auto idx = ui->listView->currentIndex();
+        ui->categoryView->setCurrentIndex(modelCategory->index(0, modelCategory->fieldIndex(GlobalValues::SQL_COLUMNNAME_NAME)));
+        auto idx = ui->categoryView->currentIndex();
         selectCategory(&idx);
     } else {
         selectCategory(nullptr);
