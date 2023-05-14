@@ -2,7 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QtWidgets>
-#include <QtSql/QSqlTableModel>
+#include <QtSql>
 #include <QString>
 
 QT_BEGIN_NAMESPACE
@@ -20,11 +20,14 @@ public:
 
 private:
     Ui::MainWindow *ui;
-    QSqlTableModel* modelEntry;
+    QSqlRelationalTableModel* modelEntry;
     QSqlTableModel* modelCategory;
+
+
 
 private slots:
     void actionExit();
+    void categoryChanged();
 };
 
 #endif // MAINWINDOW_H
