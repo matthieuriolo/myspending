@@ -24,6 +24,7 @@ private:
     QSqlTableModel* modelCategory;
 
     void preselectFirstCategory();
+    void setupEntryTableColumnStretching();
     void selectCategory(QModelIndex* index);
 
 private slots:

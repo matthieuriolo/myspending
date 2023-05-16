@@ -52,6 +52,7 @@ MainWindow::MainWindow(QWidget *parent)
     }
 
     preselectFirstCategory();
+    setupEntryTableColumnStretching();
 
     // setup slots
     connect(ui->categoryView->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)), this, SLOT(categorySelectionChanged(QItemSelection)));
@@ -69,6 +70,17 @@ void MainWindow::preselectFirstCategory()
         selectCategory(&idx);
     } else {
         selectCategory(nullptr);
+    }
+}
+
+void MainWindow::setupEntryTableColumnStretching() {
+    for (auto c = 0; c < ui->entryView->horizontalHeader()->count(); c++) {
+        auto stretching = QHeaderView::ResizeToContents;
+        if (c == modelEntry->fieldIndex(GlobalValues::SQL_COLUMNNAME_DESCRIPTION)) {
+            stretching = QHeaderView::Stretch;
+        }
+        qDebug() << modelEntry->fieldIndex(GlobalValues::SQL_COLUMNNAME_DESCRIPTION);
+        ui->entryView->horizontalHeader()->setSectionResizeMode(c, stretching);
     }
 }
 
