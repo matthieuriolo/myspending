@@ -2,7 +2,7 @@
 #include "ui_mainwindow.h"
 #include "DbManager.h"
 #include "messagebox.h"
-
+#include "entrydelegate.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -50,6 +50,8 @@ MainWindow::MainWindow(QWidget *parent)
         MessageBox::errorSQL(modelEntry->lastError(), this);
         return;
     }
+
+    ui->entryView->setItemDelegate(new EntryDelegate(ui->entryView));
 
     preselectFirstCategory();
     setupEntryTableColumnStretching();
