@@ -3,6 +3,7 @@
 #include "dbmanager.h"
 #include "messagebox.h"
 #include "entrydelegate.h"
+#include "entrymodel.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -30,7 +31,7 @@ MainWindow::MainWindow(QWidget *parent)
         return;
     }
 
-    modelEntry = new QSqlTableModel(ui->entryView);
+    modelEntry = new EntryModel(ui->entryView);
     modelEntry->setEditStrategy(QSqlTableModel::OnFieldChange);
     modelEntry->setTable(GlobalValues::SQL_TABLENAME_ENTRY);
 

@@ -11,6 +11,7 @@ CONFIG += c++11
 SOURCES += \
     dbmanager.cpp \
     entrydelegate.cpp \
+    entrymodel.cpp \
     main.cpp \
     mainwindow.cpp \
     messagebox.cpp
@@ -18,6 +19,7 @@ SOURCES += \
 HEADERS += \
     dbmanager.h \
     entrydelegate.h \
+    entrymodel.h \
     globals.h \
     mainwindow.h \
     messagebox.h \
