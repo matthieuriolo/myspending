@@ -4,19 +4,13 @@
 #include <QApplication>
 #include <QComboBox>
 #include <QPainter>
-#include <QDebug>
+#include <QMouseEvent>
+#include <QAbstractItemView>
+#include <QTimer>
 
 QWidget* EntryDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const {
     if (index.column() == indexTypeColumn) {
         QComboBox* comboBox = new QComboBox(parent);
-
-        for(auto const &val : TypeSchedule) {
-            comboBox->addItem(QObject::tr(val.second.c_str()), QVariant(QVariant::LongLong, &val.first));
-        }
-
-        // TODO
-        //comboBox->setGeometry(option.rect);
-        //comboBox->showPopup();
         return comboBox;
     } else {
         return QStyledItemDelegate::createEditor(parent, option, index);
@@ -26,10 +20,31 @@ QWidget* EntryDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem
 void EntryDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const {
     if (index.column() == indexTypeColumn) {
         QComboBox* comboBox = qobject_cast<QComboBox*>(editor);
+        for(auto const &val : TypeSchedule) {
+            comboBox->addItem(QObject::tr(val.second.c_str()), QVariant(QVariant::LongLong, &val.first));
+        }
         comboBox->setCurrentIndex(comboBox->findData(index.data()));
+        QTimer::singleShot(0, comboBox, &QComboBox::showPopup);
     } else {
         QStyledItemDelegate::setEditorData(editor, index);
     }
+}
+
+bool EntryDelegate::editorEvent(QEvent *event, QAbstractItemModel *model, const QStyleOptionViewItem &option, const QModelIndex &index) {
+    if (index.column() == indexTypeColumn) {
+        if (event->type() == QEvent::MouseButtonRelease) {
+            QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
+            if (mouseEvent->button() == Qt::LeftButton) {
+                QAbstractItemView* itemView = qobject_cast<QAbstractItemView*>( const_cast<QWidget*>(option.widget));
+                if(itemView != nullptr) {
+                    emit itemView->edit(index);
+                }
+                return true;
+            }
+        }
+    }
+
+    return QStyledItemDelegate::editorEvent(event, model, option, index);
 }
 
 void EntryDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const {
@@ -53,7 +68,6 @@ void EntryDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
 }
 
 void EntryDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const {
-
     if (index.column() == indexTypeColumn) {
         QComboBox* comboBox = qobject_cast<QComboBox*>(editor);
         model->setData(index, comboBox->currentData());
