@@ -3,6 +3,7 @@
 #include <QVariant>
 #include <QApplication>
 #include <QComboBox>
+#include <QPainter>
 #include <QDebug>
 
 QWidget* EntryDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const {
@@ -31,15 +32,21 @@ void EntryDelegate::setEditorData(QWidget *editor, const QModelIndex &index) con
     }
 }
 
-
 void EntryDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const {
     if (index.column() == indexTypeColumn) {
-        QStyleOptionViewItem myOption = option;
-        QString text = TypeSchedule.at(index.data().toInt()).c_str();
-        myOption.text = text;
-        // TODO
-        //QApplication::style()->drawComplexControl(CC_ComboBox, )
-        QApplication::style()->drawControl(QStyle::CE_ItemViewItem, &myOption, painter);
+        painter->save();
+
+        QStyleOptionComboBox comboBoxOption;
+        comboBoxOption.rect = option.rect;
+        comboBoxOption.state = option.state;
+        comboBoxOption.state |= QStyle::State_Enabled;
+        comboBoxOption.editable = false;
+        comboBoxOption.currentText = TypeSchedule.at(index.data().toInt()).c_str();
+
+        QApplication::style()->drawComplexControl(QStyle::CC_ComboBox, &comboBoxOption, painter, nullptr);
+        QApplication::style()->drawControl(QStyle::CE_ComboBoxLabel, &comboBoxOption, painter, nullptr);
+
+        painter->restore();
     }else {
         QStyledItemDelegate::paint(painter, option, index);
     }
