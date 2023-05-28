@@ -1,6 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "DbManager.h"
+#include "dbmanager.h"
 #include "messagebox.h"
 #include "entrydelegate.h"
 

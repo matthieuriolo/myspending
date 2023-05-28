@@ -1,4 +1,4 @@
-#include "DbManager.h"
+#include "dbmanager.h"
 #include <QtSql>
 #include <vector>
 #include "messagebox.h"

@@ -4,7 +4,7 @@
 #include <QLocale>
 #include <QTranslator>
 #include <QMessageBox>
-#include "DbManager.h"
+#include "dbmanager.h"
 
 int main(int argc, char *argv[])
 {
