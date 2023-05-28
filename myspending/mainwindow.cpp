@@ -31,10 +31,14 @@ MainWindow::MainWindow(QWidget *parent)
     }
 
     // setup entry view
-    modelEntry = new QSqlRelationalTableModel(ui->entryView);
+    ui->entryView->setEditTriggers(QAbstractItemView::AllEditTriggers);
+//    Handle single click in your delegate (::editorEvent) in next way: create an editor (QComboBox) and force it to show dropdown list.
+
+    modelEntry = new QSqlTableModel(ui->entryView);
+    modelEntry->setEditStrategy(QSqlTableModel::OnFieldChange);
     modelEntry->setTable(GlobalValues::SQL_TABLENAME_ENTRY);
 
-    modelEntry->setRelation(modelCategory->fieldIndex(GlobalValues::SQL_COLUMNNAME_CATEGORY_ID), QSqlRelation(GlobalValues::SQL_TABLENAME_CATEGORY, GlobalValues::SQL_COLUMNNAME_ID, GlobalValues::SQL_COLUMNNAME_NAME));
+    //modelEntry->setRelation(modelCategory->fieldIndex(GlobalValues::SQL_COLUMNNAME_CATEGORY_ID), QSqlRelation(GlobalValues::SQL_TABLENAME_CATEGORY, GlobalValues::SQL_COLUMNNAME_ID, GlobalValues::SQL_COLUMNNAME_NAME));
 
     modelEntry->setHeaderData(modelEntry->fieldIndex(GlobalValues::SQL_COLUMNNAME_DESCRIPTION), Qt::Horizontal, QObject::tr("description"));
     modelEntry->setHeaderData(modelEntry->fieldIndex(GlobalValues::SQL_COLUMNNAME_TYPE), Qt::Horizontal, QObject::tr("schedule"));
@@ -51,7 +55,7 @@ MainWindow::MainWindow(QWidget *parent)
         return;
     }
 
-    ui->entryView->setItemDelegate(new EntryDelegate(ui->entryView));
+    ui->entryView->setItemDelegate(new EntryDelegate(ui->entryView, modelEntry->fieldIndex(GlobalValues::SQL_COLUMNNAME_TYPE)));
 
     preselectFirstCategory();
     setupEntryTableColumnStretching();
@@ -81,7 +85,6 @@ void MainWindow::setupEntryTableColumnStretching() {
         if (c == modelEntry->fieldIndex(GlobalValues::SQL_COLUMNNAME_DESCRIPTION)) {
             stretching = QHeaderView::Stretch;
         }
-        qDebug() << modelEntry->fieldIndex(GlobalValues::SQL_COLUMNNAME_DESCRIPTION);
         ui->entryView->horizontalHeader()->setSectionResizeMode(c, stretching);
     }
 }

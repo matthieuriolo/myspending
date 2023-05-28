@@ -20,7 +20,8 @@ HEADERS += \
     entrydelegate.h \
     globals.h \
     mainwindow.h \
-    messagebox.h
+    messagebox.h \
+    typeenum.h
 
 FORMS += \
     mainwindow.ui

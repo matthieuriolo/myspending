@@ -20,8 +20,8 @@ public:
 
 private:
     Ui::MainWindow *ui;
-    QSqlRelationalTableModel* modelEntry;
     QSqlTableModel* modelCategory;
+    QSqlTableModel* modelEntry;
 
     void preselectFirstCategory();
     void setupEntryTableColumnStretching();

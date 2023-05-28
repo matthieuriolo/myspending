@@ -1,14 +1,20 @@
 #ifndef ENTRYDELEGATE_H
 #define ENTRYDELEGATE_H
 
-#include <QSqlRelationalDelegate>
+#include <QStyledItemDelegate>
 
-class EntryDelegate : public QSqlRelationalDelegate
+class EntryDelegate : public QStyledItemDelegate
 {
 public:
-    EntryDelegate(QObject *parent);
+    EntryDelegate(QObject *parent, int indexScheduleColumn) : QStyledItemDelegate(parent), indexTypeColumn(indexScheduleColumn) {};
 
-   void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
+    QWidget* createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
+    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
+    void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const override;
+    void setEditorData(QWidget *editor, const QModelIndex &index) const override;
+private:
+    int indexTypeColumn;
+
 };
 
 #endif // ENTRYDELEGATE_H
