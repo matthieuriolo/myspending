@@ -12,6 +12,8 @@ private:
     int indexColumnMonthly = -1;
     int indexColumnYearly = -1;
 
+    double calculateDailyValue(const QModelIndex &item) const;
+
 public:
     EntryModel(QObject *parent = nullptr, QSqlDatabase db = QSqlDatabase());
 
