@@ -75,19 +75,18 @@ QVariant EntryModel::data(const QModelIndex &item, int role) const {
     return QSqlTableModel::data(item, role);
 }
 
-// TODO probably not needed ...
-QVariant EntryModel::headerData(int section, Qt::Orientation orientation, int role) const {
-    if (role == Qt::DisplayRole) {
-        if (section == indexColumnDaily) {
-            return QVariant(QVariant::String, new QString("daily"));
-        } else if (section == indexColumnWeekly) {
-            return QVariant(QVariant::String, new QString("weekly"));
-        } else if (section == indexColumnMonthly) {
-            return QVariant(QVariant::String, new QString("monthly"));
-        } else if (section == indexColumnYearly) {
-            return QVariant(QVariant::String, new QString("yearly"));
-        }
-    }
-    return QSqlTableModel::headerData(section, orientation, role);
+int EntryModel::getFieldIndexDaily() const {
+    return indexColumnDaily;
 }
 
+int EntryModel::getFieldIndexWeekly() const {
+    return indexColumnWeekly;
+}
+
+int EntryModel::getFieldIndexMonthly() const {
+    return indexColumnMonthly;
+}
+
+int EntryModel::getFieldIndexYearly() const {
+    return indexColumnYearly;
+}

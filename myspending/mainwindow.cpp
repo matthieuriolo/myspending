@@ -3,7 +3,6 @@
 #include "dbmanager.h"
 #include "messagebox.h"
 #include "entrydelegate.h"
-#include "entrymodel.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -38,6 +37,11 @@ MainWindow::MainWindow(QWidget *parent)
     modelEntry->setHeaderData(modelEntry->fieldIndex(GlobalValues::SQL_COLUMNNAME_DESCRIPTION), Qt::Horizontal, QObject::tr("description"));
     modelEntry->setHeaderData(modelEntry->fieldIndex(GlobalValues::SQL_COLUMNNAME_TYPE), Qt::Horizontal, QObject::tr("schedule"));
     modelEntry->setHeaderData(modelEntry->fieldIndex(GlobalValues::SQL_COLUMNNAME_VALUE), Qt::Horizontal, QObject::tr("value"));
+    modelEntry->setHeaderData(modelEntry->getFieldIndexDaily(), Qt::Horizontal, QObject::tr("daily"));
+    modelEntry->setHeaderData(modelEntry->getFieldIndexWeekly(), Qt::Horizontal, QObject::tr("weekly"));
+    modelEntry->setHeaderData(modelEntry->getFieldIndexMonthly(), Qt::Horizontal, QObject::tr("monthly"));
+    modelEntry->setHeaderData(modelEntry->getFieldIndexYearly(), Qt::Horizontal, QObject::tr("yearly"));
+
 
     ui->entryView->setModel(modelEntry);
     ui->entryView->setSelectionMode(QAbstractItemView::SelectionMode::SingleSelection);
