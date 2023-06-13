@@ -37,7 +37,7 @@ double EntryModel::calculateDailyValue(const QModelIndex &item) const {
     auto valueIndex = createIndex(item.row(), this->fieldIndex(GlobalValues::SQL_COLUMNNAME_VALUE));
     auto typeIndex = createIndex(item.row(), this->fieldIndex(GlobalValues::SQL_COLUMNNAME_TYPE));
 
-    auto value = valueIndex.data(Qt::DisplayRole).toLongLong();
+    auto value = valueIndex.data(Qt::DisplayRole).toDouble();
     auto type = typeIndex.data(Qt::DisplayRole).toInt();
 
     // TODO - thats nasty ...

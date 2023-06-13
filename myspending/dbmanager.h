@@ -24,7 +24,7 @@ private:
             + GlobalValues::SQL_COLUMNNAME_ID + " integer primary key, "
             + GlobalValues::SQL_COLUMNNAME_CATEGORY_ID + " integer NOT NULL, "
             + GlobalValues::SQL_COLUMNNAME_DESCRIPTION + " varchar, "
-            + GlobalValues::SQL_COLUMNNAME_VALUE + " integer, "
+            + GlobalValues::SQL_COLUMNNAME_VALUE + " double, "
             + GlobalValues::SQL_COLUMNNAME_TYPE + " integer, "
             + "FOREIGN KEY (" + GlobalValues::SQL_COLUMNNAME_CATEGORY_ID + ") REFERENCES " + GlobalValues::SQL_TABLENAME_CATEGORY + " (" + GlobalValues::SQL_COLUMNNAME_ID + ") );"
         }
