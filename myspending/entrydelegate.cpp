@@ -20,8 +20,8 @@ QWidget* EntryDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem
 void EntryDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const {
     if (index.column() == indexTypeColumn) {
         QComboBox* comboBox = qobject_cast<QComboBox*>(editor);
-        for(auto const &val : TypeSchedule) {
-            comboBox->addItem(QObject::tr(val.second.c_str()), QVariant(QVariant::LongLong, &val.first));
+        for(auto const &val : TypeSchedulers) {
+            comboBox->addItem(QObject::tr(val.second.getName().c_str()), QVariant(QVariant::LongLong, &val.first));
         }
         comboBox->setCurrentIndex(comboBox->findData(index.data()));
         QTimer::singleShot(0, comboBox, &QComboBox::showPopup);
@@ -56,7 +56,7 @@ void EntryDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
         comboBoxOption.state = option.state;
         comboBoxOption.state |= QStyle::State_Enabled;
         comboBoxOption.editable = false;
-        comboBoxOption.currentText = TypeSchedule.at(index.data().toInt()).c_str();
+        comboBoxOption.currentText = TypeSchedulers.at(index.data().toInt()).getName().c_str();
 
         QApplication::style()->drawComplexControl(QStyle::CC_ComboBox, &comboBoxOption, painter, nullptr);
         QApplication::style()->drawControl(QStyle::CE_ComboBoxLabel, &comboBoxOption, painter, nullptr);

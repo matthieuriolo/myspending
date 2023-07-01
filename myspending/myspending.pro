@@ -14,7 +14,8 @@ SOURCES += \
     entrymodel.cpp \
     main.cpp \
     mainwindow.cpp \
-    messagebox.cpp
+    messagebox.cpp \
+    typescheduler.cpp
 
 HEADERS += \
     dbmanager.h \
@@ -23,7 +24,8 @@ HEADERS += \
     globals.h \
     mainwindow.h \
     messagebox.h \
-    typeenum.h
+    typeenum.h \
+    typescheduler.h
 
 FORMS += \
     mainwindow.ui

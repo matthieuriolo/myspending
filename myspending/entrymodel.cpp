@@ -1,5 +1,6 @@
 #include "entrymodel.h"
 #include "globals.h"
+#include "typeenum.h"
 
 EntryModel::EntryModel(QObject *parent, QSqlDatabase db) : QSqlTableModel(parent, db)
 {}
@@ -40,17 +41,23 @@ double EntryModel::calculateDailyValue(const QModelIndex &item) const {
     auto value = valueIndex.data(Qt::DisplayRole).toDouble();
     auto type = typeIndex.data(Qt::DisplayRole).toInt();
 
-    // TODO - thats nasty ...
-    switch (type) {
-        case 1: return value;
-        case 2: return value / 7;
-        case 3: return value / 7 / 4;
-        case 4: return value / 7 / 4 / 12;
-    }
-
-    return 0;
+    return TypeSchedulers.at(type).convertToSmallestUnit(value);
 }
 
+TypeScheduler EntryModel::mapIndexColumnToTypeScheduler(int column) const {
+    if(column == indexColumnDaily) {
+        return TypeSchedulers.at(1);
+    } else if(column == indexColumnWeekly) {
+        return TypeSchedulers.at(2);
+    } else if(column == indexColumnMonthly) {
+        return TypeSchedulers.at(3);
+    } else if(column == indexColumnYearly) {
+        return TypeSchedulers.at(4);
+    }
+
+    // fallback to NONE
+    return TypeSchedulers.at(0);
+}
 
 QVariant EntryModel::data(const QModelIndex &item, int role) const {
     if (role == Qt::DisplayRole) {
@@ -60,16 +67,9 @@ QVariant EntryModel::data(const QModelIndex &item, int role) const {
                 item.column() == indexColumnMonthly ||
                 item.column() == indexColumnYearly
          ) {
+            auto scheduler = mapIndexColumnToTypeScheduler(item.column());
             auto daily = calculateDailyValue(item);
-            if (item.column() == indexColumnDaily) {
-                return QVariant(daily);
-            } else if (item.column() == indexColumnWeekly) {
-                return QVariant(daily * 7);
-            } else if (item.column() == indexColumnMonthly) {
-                return QVariant(daily * 7 * 4);
-            } else if (item.column() == indexColumnYearly) {
-                return QVariant(daily * 7 * 4 * 12);
-            }
+            return QVariant(scheduler.convertToSmallestUnit(daily));
         }
     }
     return QSqlTableModel::data(item, role);

@@ -2,6 +2,7 @@
 #define ENTRYMODEL_H
 
 #include <QSqlTableModel>
+#include "typescheduler.h"
 
 class EntryModel : public QSqlTableModel
 {
@@ -13,6 +14,7 @@ private:
     int indexColumnYearly = -1;
 
     double calculateDailyValue(const QModelIndex &item) const;
+    TypeScheduler mapIndexColumnToTypeScheduler(int column) const;
 
 public:
     EntryModel(QObject *parent = nullptr, QSqlDatabase db = QSqlDatabase());
