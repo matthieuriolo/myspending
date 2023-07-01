@@ -21,6 +21,7 @@ MainWindow::MainWindow(QWidget *parent)
     // setup category view
     modelCategory = new QSqlTableModel(ui->categoryView);
     modelCategory->setTable(GlobalValues::SQL_TABLENAME_CATEGORY);
+    modelCategory->setEditStrategy(QSqlTableModel::OnFieldChange);
 
     ui->categoryView->setModel(modelCategory);
     ui->categoryView->setModelColumn(modelCategory->fieldIndex(GlobalValues::SQL_COLUMNNAME_NAME));
@@ -32,8 +33,8 @@ MainWindow::MainWindow(QWidget *parent)
     }
 
     modelEntry = new EntryModel(ui->entryView);
-    modelEntry->setEditStrategy(QSqlTableModel::OnFieldChange);
     modelEntry->setTable(GlobalValues::SQL_TABLENAME_ENTRY);
+    modelEntry->setEditStrategy(QSqlTableModel::OnFieldChange);
 
     modelEntry->setHeaderData(modelEntry->fieldIndex(GlobalValues::SQL_COLUMNNAME_DESCRIPTION), Qt::Horizontal, QObject::tr("description"));
     modelEntry->setHeaderData(modelEntry->fieldIndex(GlobalValues::SQL_COLUMNNAME_TYPE), Qt::Horizontal, QObject::tr("schedule"));
@@ -66,6 +67,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->entryView->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)), this, SLOT(entrySelectionChanged(QItemSelection)));
 
     connect(ui->actionExit, SIGNAL(triggered()), this, SLOT(actionExit()));
+    connect(ui->actionNew_category, SIGNAL(triggered()), this, SLOT(actionNewCategory()));
+    connect(ui->actionDelete_category, SIGNAL(triggered()), this, SLOT(actionDeleteCategory()));
 
     connect(modelEntry, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)), this, SLOT(entryModelChanged()));
 }
@@ -129,6 +132,40 @@ void MainWindow::entrySelectionChanged(QItemSelection currentSelection)
 
 void MainWindow::actionExit() {
     QApplication::quit();
+}
+
+
+void MainWindow::actionNewCategory() {
+    auto record = modelCategory->record();
+    record.setValue(GlobalValues::SQL_COLUMNNAME_NAME, QVariant(QObject::tr("New Category")));
+    modelCategory->insertRecord(-1, record);
+    modelCategory->select();
+
+    auto idx = modelCategory->index(modelCategory->rowCount() - 1, modelCategory->fieldIndex(GlobalValues::SQL_COLUMNNAME_NAME));
+    ui->categoryView->setCurrentIndex(idx);
+    selectCategory(&idx);
+}
+
+void MainWindow::actionDeleteCategory() {
+    auto selection = ui->categoryView->selectionModel()->currentIndex();
+
+    if (selection.isValid()) {
+        modelCategory->removeRow(selection.row());
+        modelCategory->select();
+
+        if (selection.row() > 0) {
+            auto newIndex = modelCategory->index(selection.row() - 1, modelCategory->fieldIndex(GlobalValues::SQL_COLUMNNAME_NAME));
+
+            if (newIndex.isValid()) {
+                ui->categoryView->setCurrentIndex(newIndex);
+                selectCategory(&newIndex);
+            } else {
+                preselectFirstCategory();
+            }
+        } else {
+            preselectFirstCategory();
+        }
+    }
 }
 
 void MainWindow::entryModelChanged() {
