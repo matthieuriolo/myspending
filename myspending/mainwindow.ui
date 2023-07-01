@@ -11,7 +11,11 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>MySpending</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>wallet-icon.png</normaloff>wallet-icon.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -30,7 +34,7 @@
           <item>
            <layout class="QVBoxLayout" name="verticalLayout">
             <item>
-             <widget class="QLabel" name="label">
+             <widget class="QLabel" name="labelDailyDescription">
               <property name="maximumSize">
                <size>
                 <width>70</width>
@@ -43,7 +47,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="label_2">
+             <widget class="QLabel" name="labelWeeklyDescription">
               <property name="maximumSize">
                <size>
                 <width>70</width>
@@ -56,7 +60,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="label_3">
+             <widget class="QLabel" name="labelMonthlyDescription">
               <property name="maximumSize">
                <size>
                 <width>70</width>
@@ -69,7 +73,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="label_4">
+             <widget class="QLabel" name="labelYearlyDescription">
               <property name="maximumSize">
                <size>
                 <width>70</width>
