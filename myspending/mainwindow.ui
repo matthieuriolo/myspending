@@ -211,7 +211,7 @@
     <string>Delete entry</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+N</string>
+    <string>Ctrl+D</string>
    </property>
   </action>
  </widget>

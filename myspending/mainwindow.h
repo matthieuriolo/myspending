@@ -33,6 +33,8 @@ private slots:
     void actionExit();
     void actionNewCategory();
     void actionDeleteCategory();
+    void actionNewEntry();
+    void actionDeleteEntry();
     void categorySelectionChanged(QItemSelection currentSelection);
     void entrySelectionChanged(QItemSelection currentSelection);
     void entryModelChanged();

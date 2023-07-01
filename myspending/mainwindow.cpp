@@ -69,6 +69,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->actionExit, SIGNAL(triggered()), this, SLOT(actionExit()));
     connect(ui->actionNew_category, SIGNAL(triggered()), this, SLOT(actionNewCategory()));
     connect(ui->actionDelete_category, SIGNAL(triggered()), this, SLOT(actionDeleteCategory()));
+    connect(ui->actionNew_entry, SIGNAL(triggered()), this, SLOT(actionNewEntry()));
+    connect(ui->actionDelete_entry, SIGNAL(triggered()), this, SLOT(actionDeleteEntry()));
 
     connect(modelEntry, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)), this, SLOT(entryModelChanged()));
 }
@@ -102,8 +104,10 @@ void MainWindow::selectCategory(QModelIndex* index)
         auto record = modelCategory->record(index->row());
         pk = record.value(GlobalValues::SQL_COLUMNNAME_ID).toLongLong();
         ui->actionDelete_category->setEnabled(true);
+        ui->actionNew_entry->setEnabled(true);
     } else {
         ui->actionDelete_category->setEnabled(false);
+        ui->actionNew_entry->setEnabled(false);
     }
 
     ui->actionDelete_entry->setEnabled(false);
@@ -134,7 +138,6 @@ void MainWindow::actionExit() {
     QApplication::quit();
 }
 
-
 void MainWindow::actionNewCategory() {
     auto record = modelCategory->record();
     record.setValue(GlobalValues::SQL_COLUMNNAME_NAME, QVariant(QObject::tr("New Category")));
@@ -153,8 +156,8 @@ void MainWindow::actionDeleteCategory() {
         modelCategory->removeRow(selection.row());
         modelCategory->select();
 
-        if (selection.row() > 0) {
-            auto newIndex = modelCategory->index(selection.row() - 1, modelCategory->fieldIndex(GlobalValues::SQL_COLUMNNAME_NAME));
+        if (modelCategory->rowCount() > 0) {
+            auto newIndex = modelCategory->index(max(selection.row() - 1, 0), modelCategory->fieldIndex(GlobalValues::SQL_COLUMNNAME_NAME));
 
             if (newIndex.isValid()) {
                 ui->categoryView->setCurrentIndex(newIndex);
@@ -164,6 +167,41 @@ void MainWindow::actionDeleteCategory() {
             }
         } else {
             preselectFirstCategory();
+        }
+    }
+}
+
+void MainWindow::actionNewEntry() {
+    auto idx = ui->categoryView->currentIndex();
+    auto categoryIndex = modelEntry->index(idx.row(), modelEntry->fieldIndex(GlobalValues::SQL_COLUMNNAME_CATEGORY_ID));
+    auto categoryId = modelEntry->data(categoryIndex);
+
+    auto record = modelEntry->record();
+    record.setValue(GlobalValues::SQL_COLUMNNAME_DESCRIPTION, QVariant(QObject::tr("New Entry")));
+    record.setValue(GlobalValues::SQL_COLUMNNAME_VALUE, QVariant(0.0));
+    record.setValue(GlobalValues::SQL_COLUMNNAME_TYPE, QVariant(0));
+    record.setValue(GlobalValues::SQL_COLUMNNAME_CATEGORY_ID, categoryId);
+
+    modelEntry->insertRecord(-1, record);
+    modelEntry->select();
+
+    auto newIdx = modelEntry->index(modelEntry->rowCount() - 1, modelEntry->fieldIndex(GlobalValues::SQL_COLUMNNAME_DESCRIPTION));
+    ui->entryView->setCurrentIndex(newIdx);
+}
+
+void MainWindow::actionDeleteEntry() {
+    auto selection = ui->entryView->selectionModel()->currentIndex();
+
+    if (selection.isValid()) {
+        modelEntry->removeRow(selection.row());
+        modelEntry->select();
+
+        if (modelCategory->rowCount() > 0) {
+            auto newIndex = modelEntry->index(max(selection.row() - 1, 0), modelEntry->fieldIndex(GlobalValues::SQL_COLUMNNAME_DESCRIPTION));
+
+            if (newIndex.isValid()) {
+                ui->entryView->setCurrentIndex(newIndex);
+            }
         }
     }
 }
