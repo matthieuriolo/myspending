@@ -69,7 +69,7 @@ QVariant EntryModel::data(const QModelIndex &item, int role) const {
          ) {
             auto scheduler = mapIndexColumnToTypeScheduler(item.column());
             auto daily = calculateDailyValue(item);
-            return QVariant(scheduler.convertToSmallestUnit(daily));
+            return QVariant(QString("%1").arg(scheduler.convertToSmallestUnit(daily), 0, 'f', 2));
         }
     }
     return QSqlTableModel::data(item, role);

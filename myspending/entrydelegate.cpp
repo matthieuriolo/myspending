@@ -62,7 +62,7 @@ void EntryDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
         QApplication::style()->drawControl(QStyle::CE_ComboBoxLabel, &comboBoxOption, painter, nullptr);
 
         painter->restore();
-    }else {
+    } else {
         QStyledItemDelegate::paint(painter, option, index);
     }
 }

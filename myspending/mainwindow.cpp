@@ -142,10 +142,10 @@ void MainWindow::recalculateTotalSchedule() {
         sumDailies += index.data().toDouble();
     }
 
-    ui->labelDaily->setText(QString::number(TypeSchedulers.at(1).convertToSameUnit(sumDailies)));
-    ui->labelWeekly->setText(QString::number(TypeSchedulers.at(2).convertToSameUnit(sumDailies)));
-    ui->labelMonthly->setText(QString::number(TypeSchedulers.at(3).convertToSameUnit(sumDailies)));
-    ui->labelYearly->setText(QString::number(TypeSchedulers.at(4).convertToSameUnit(sumDailies)));
+    ui->labelDaily->setText(QString("%1").arg(TypeSchedulers.at(1).convertToSameUnit(sumDailies), 0, 'f', 2));
+    ui->labelWeekly->setText(QString("%1").arg(TypeSchedulers.at(2).convertToSameUnit(sumDailies), 0, 'f', 2));
+    ui->labelMonthly->setText(QString("%1").arg(TypeSchedulers.at(3).convertToSameUnit(sumDailies), 0, 'f', 2));
+    ui->labelYearly->setText(QString("%1").arg(TypeSchedulers.at(4).convertToSameUnit(sumDailies), 0, 'f', 2));
 }
 
 MainWindow::~MainWindow()
