@@ -3,6 +3,7 @@
 #include "dbmanager.h"
 #include "messagebox.h"
 #include "entrydelegate.h"
+#include "typeenum.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -58,12 +59,15 @@ MainWindow::MainWindow(QWidget *parent)
 
     preselectFirstCategory();
     setupEntryTableColumnStretching();
+    recalculateTotalSchedule();
 
     // setup slots
     connect(ui->categoryView->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)), this, SLOT(categorySelectionChanged(QItemSelection)));
     connect(ui->entryView->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)), this, SLOT(entrySelectionChanged(QItemSelection)));
 
     connect(ui->actionExit, SIGNAL(triggered()), this, SLOT(actionExit()));
+
+    connect(modelEntry, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)), this, SLOT(entryModelChanged()));
 }
 
 
@@ -110,6 +114,8 @@ void MainWindow::categorySelectionChanged(QItemSelection currentSelection)
     } else {
         selectCategory(&currentSelection.indexes().front());
     }
+
+    recalculateTotalSchedule();
 }
 
 void MainWindow::entrySelectionChanged(QItemSelection currentSelection)
@@ -123,6 +129,23 @@ void MainWindow::entrySelectionChanged(QItemSelection currentSelection)
 
 void MainWindow::actionExit() {
     QApplication::quit();
+}
+
+void MainWindow::entryModelChanged() {
+    recalculateTotalSchedule();
+}
+
+void MainWindow::recalculateTotalSchedule() {
+    auto sumDailies = 0.0;
+    for (int rowIndex = 0; rowIndex < modelEntry->rowCount(); ++rowIndex) {
+        QModelIndex index = modelEntry->index(rowIndex, modelEntry->getFieldIndexDaily());
+        sumDailies += index.data().toDouble();
+    }
+
+    ui->labelDaily->setText(QString::number(TypeSchedulers.at(1).convertToSameUnit(sumDailies)));
+    ui->labelWeekly->setText(QString::number(TypeSchedulers.at(2).convertToSameUnit(sumDailies)));
+    ui->labelMonthly->setText(QString::number(TypeSchedulers.at(3).convertToSameUnit(sumDailies)));
+    ui->labelYearly->setText(QString::number(TypeSchedulers.at(4).convertToSameUnit(sumDailies)));
 }
 
 MainWindow::~MainWindow()

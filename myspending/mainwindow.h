@@ -27,11 +27,13 @@ private:
     void preselectFirstCategory();
     void setupEntryTableColumnStretching();
     void selectCategory(QModelIndex* index);
+    void recalculateTotalSchedule();
 
 private slots:
     void actionExit();
     void categorySelectionChanged(QItemSelection currentSelection);
     void entrySelectionChanged(QItemSelection currentSelection);
+    void entryModelChanged();
 };
 
 #endif // MAINWINDOW_H
