@@ -25,6 +25,7 @@ void EntryDelegate::setEditorData(QWidget *editor, const QModelIndex &index) con
         }
         comboBox->setCurrentIndex(comboBox->findData(index.data()));
         QTimer::singleShot(0, comboBox, &QComboBox::showPopup);
+        connect(comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(currentIndexChanged(int)));
     } else {
         QStyledItemDelegate::setEditorData(editor, index);
     }
@@ -73,5 +74,13 @@ void EntryDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, con
         model->setData(index, comboBox->currentData());
     } else {
         QStyledItemDelegate::setModelData(editor, model, index);
+    }
+}
+
+void EntryDelegate::currentIndexChanged(int) {
+    QComboBox* comboBox = static_cast<QComboBox*>(sender());
+    if (comboBox) {
+        emit commitData(comboBox);
+        emit closeEditor(comboBox);
     }
 }

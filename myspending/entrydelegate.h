@@ -5,6 +5,7 @@
 
 class EntryDelegate : public QStyledItemDelegate
 {
+    Q_OBJECT
 public:
     EntryDelegate(QObject *parent, int indexScheduleColumn) : QStyledItemDelegate(parent), indexTypeColumn(indexScheduleColumn) {};
 
@@ -16,6 +17,8 @@ public:
 private:
     int indexTypeColumn;
 
+private slots:
+    void currentIndexChanged(int selectedIndex);
 };
 
 #endif // ENTRYDELEGATE_H
