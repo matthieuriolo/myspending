@@ -17,7 +17,13 @@ bool DbManager::initialize() {
         return false;
     }
 
-    QSqlError q = createTables();
+    QSqlError q = db.exec("PRAGMA foreign_keys = ON").lastError();
+    if (q.type() != QSqlError::NoError) {
+        MessageBox::errorSQL(q);
+        return false;
+    }
+
+    q = createTables();
     if (q.type() != QSqlError::NoError) {
         MessageBox::errorSQL(q);
         return false;
