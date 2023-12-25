@@ -141,8 +141,15 @@ void MainWindow::actionExit() {
 void MainWindow::actionNewCategory() {
     auto record = modelCategory->record();
     record.setValue(GlobalValues::SQL_COLUMNNAME_NAME, QVariant(QObject::tr("New Category")));
-    modelCategory->insertRecord(-1, record);
-    modelCategory->select();
+    if(!modelCategory->insertRecord(-1, record)) {
+        MessageBox::errorSQL(modelCategory->lastError(), this);
+        return;
+    }
+
+    if(!modelCategory->select()) {
+        MessageBox::errorSQL(modelCategory->lastError(), this);
+        return;
+    }
 
     auto idx = modelCategory->index(modelCategory->rowCount() - 1, modelCategory->fieldIndex(GlobalValues::SQL_COLUMNNAME_NAME));
     ui->categoryView->setCurrentIndex(idx);
@@ -153,8 +160,15 @@ void MainWindow::actionDeleteCategory() {
     auto selection = ui->categoryView->selectionModel()->currentIndex();
 
     if (selection.isValid()) {
-        modelCategory->removeRow(selection.row());
-        modelCategory->select();
+        if(!modelCategory->removeRow(selection.row())) {
+            MessageBox::errorSQL(modelCategory->lastError(), this);
+            return;
+        }
+
+        if(!modelCategory->select()) {
+            MessageBox::errorSQL(modelCategory->lastError(), this);
+            return;
+        }
 
         if (modelCategory->rowCount() > 0) {
             auto newIndex = modelCategory->index(max(selection.row() - 1, 0), modelCategory->fieldIndex(GlobalValues::SQL_COLUMNNAME_NAME));
@@ -173,8 +187,8 @@ void MainWindow::actionDeleteCategory() {
 
 void MainWindow::actionNewEntry() {
     auto idx = ui->categoryView->currentIndex();
-    auto categoryIndex = modelEntry->index(idx.row(), modelEntry->fieldIndex(GlobalValues::SQL_COLUMNNAME_CATEGORY_ID));
-    auto categoryId = modelEntry->data(categoryIndex);
+    auto categoryIndex = modelCategory->index(idx.row(), modelCategory->fieldIndex(GlobalValues::SQL_COLUMNNAME_ID));
+    auto categoryId = modelCategory->data(categoryIndex);
 
     auto record = modelEntry->record();
     record.setValue(GlobalValues::SQL_COLUMNNAME_DESCRIPTION, QVariant(QObject::tr("New Entry")));
@@ -182,8 +196,14 @@ void MainWindow::actionNewEntry() {
     record.setValue(GlobalValues::SQL_COLUMNNAME_TYPE, QVariant(0));
     record.setValue(GlobalValues::SQL_COLUMNNAME_CATEGORY_ID, categoryId);
 
-    modelEntry->insertRecord(-1, record);
-    modelEntry->select();
+    if(!modelEntry->insertRecord(-1, record)) {
+        MessageBox::errorSQL(modelEntry->lastError(), this);
+        return;
+    }
+    if(!modelEntry->select()) {
+        MessageBox::errorSQL(modelEntry->lastError(), this);
+        return;
+    }
 
     auto newIdx = modelEntry->index(modelEntry->rowCount() - 1, modelEntry->fieldIndex(GlobalValues::SQL_COLUMNNAME_DESCRIPTION));
     ui->entryView->setCurrentIndex(newIdx);
@@ -193,8 +213,15 @@ void MainWindow::actionDeleteEntry() {
     auto selection = ui->entryView->selectionModel()->currentIndex();
 
     if (selection.isValid()) {
-        modelEntry->removeRow(selection.row());
-        modelEntry->select();
+        if (!modelEntry->removeRow(selection.row())) {
+            MessageBox::errorSQL(modelEntry->lastError(), this);
+            return;
+        }
+
+        if (!modelEntry->select()) {
+            MessageBox::errorSQL(modelEntry->lastError(), this);
+            return;
+        }
 
         if (modelCategory->rowCount() > 0) {
             auto newIndex = modelEntry->index(max(selection.row() - 1, 0), modelEntry->fieldIndex(GlobalValues::SQL_COLUMNNAME_DESCRIPTION));
