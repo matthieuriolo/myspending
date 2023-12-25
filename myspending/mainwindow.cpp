@@ -244,10 +244,10 @@ void MainWindow::recalculateTotalSchedule() {
         sumDailies += index.data().toDouble();
     }
 
-    ui->labelDaily->setText(QString("%1").arg(TypeSchedulers.at(1).convertToSameUnit(sumDailies), 0, 'f', 2));
-    ui->labelWeekly->setText(QString("%1").arg(TypeSchedulers.at(2).convertToSameUnit(sumDailies), 0, 'f', 2));
-    ui->labelMonthly->setText(QString("%1").arg(TypeSchedulers.at(3).convertToSameUnit(sumDailies), 0, 'f', 2));
-    ui->labelYearly->setText(QString("%1").arg(TypeSchedulers.at(4).convertToSameUnit(sumDailies), 0, 'f', 2));
+    ui->labelDaily->setText(QLocale().toCurrencyString(TypeSchedulers.at(1).convertToSameUnit(sumDailies)));
+    ui->labelWeekly->setText(QLocale().toCurrencyString(TypeSchedulers.at(2).convertToSameUnit(sumDailies)));
+    ui->labelMonthly->setText(QLocale().toCurrencyString(TypeSchedulers.at(3).convertToSameUnit(sumDailies)));
+    ui->labelYearly->setText(QLocale().toCurrencyString(TypeSchedulers.at(4).convertToSameUnit(sumDailies)));
 }
 
 MainWindow::~MainWindow()
