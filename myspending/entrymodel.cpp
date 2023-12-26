@@ -1,94 +1,50 @@
 #include "entrymodel.h"
 #include "globals.h"
 #include "typeenum.h"
-#include "QLocale"
+#include <QtSql>
 
 EntryModel::EntryModel(QObject *parent, QSqlDatabase db) : QSqlTableModel(parent, db)
-{}
-
-
-int EntryModel::columnCount(const QModelIndex &parent) const {
-    return QSqlTableModel::columnCount(parent) + 4;
+{
+    connect(this, SIGNAL(beforeUpdate(int, QSqlRecord&)), this, SLOT(beforeUpdate(int, QSqlRecord&)));
 }
+
 
 void EntryModel::setTable(const QString &tableName) {
     QSqlTableModel::setTable(tableName);
 
-    indexColumnDaily = QSqlTableModel::columnCount();
-    indexColumnWeekly = indexColumnDaily + 1;
-    indexColumnMonthly = indexColumnWeekly + 1;
-    indexColumnYearly = indexColumnMonthly + 1;
+    editableColumns.clear();
+    editableColumns.push_back(fieldIndex(GlobalValues::SQL_COLUMNNAME_DAILY));
+    editableColumns.push_back(fieldIndex(GlobalValues::SQL_COLUMNNAME_WEEKLY));
+    editableColumns.push_back(fieldIndex(GlobalValues::SQL_COLUMNNAME_MONTHLY));
+    editableColumns.push_back(fieldIndex(GlobalValues::SQL_COLUMNNAME_YEARLY));
 }
-
 
 Qt::ItemFlags EntryModel::flags( const QModelIndex & index ) const {
-    if (
-            index.column() == indexColumnDaily ||
-            index.column() == indexColumnWeekly ||
-            index.column() == indexColumnMonthly ||
-            index.column() == indexColumnYearly
-     ) {
-        return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+    auto flags = QSqlTableModel::flags(index);
+    bool isNotEditable = (std::find(editableColumns.begin(), editableColumns.end(), index.column()) != editableColumns.end());
+
+    if (isNotEditable) {
+        return flags & (~Qt::ItemIsEditable);
      } else {
-        return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
+        return flags;
     }
 }
 
+void EntryModel::beforeUpdate(int, QSqlRecord &record) {
+    auto schedulerIndex = record.value(GlobalValues::SQL_COLUMNNAME_TYPE);
+    auto value = record.value(GlobalValues::SQL_COLUMNNAME_VALUE);
 
-double EntryModel::calculateDailyValue(const QModelIndex &item) const {
-    auto valueIndex = createIndex(item.row(), this->fieldIndex(GlobalValues::SQL_COLUMNNAME_VALUE));
-    auto typeIndex = createIndex(item.row(), this->fieldIndex(GlobalValues::SQL_COLUMNNAME_TYPE));
+    auto dailyValue = TypeSchedulers.at(schedulerIndex.toInt()).convertToSmallestUnit(value.toDouble());
 
-    auto value = valueIndex.data(Qt::DisplayRole).toDouble();
-    auto type = typeIndex.data(Qt::DisplayRole).toInt();
+    record.setValue(GlobalValues::SQL_COLUMNNAME_DAILY, QVariant(TypeSchedulers.at(TypeSchedulerDaily).convertToSameUnit(dailyValue)));
+    record.setGenerated(GlobalValues::SQL_COLUMNNAME_DAILY, true);
 
-    return TypeSchedulers.at(type).convertToSmallestUnit(value);
-}
+    record.setValue(GlobalValues::SQL_COLUMNNAME_WEEKLY, QVariant(TypeSchedulers.at(TypeSchedulerWeekly).convertToSameUnit(dailyValue)));
+    record.setGenerated(GlobalValues::SQL_COLUMNNAME_WEEKLY, true);
 
-TypeScheduler EntryModel::mapIndexColumnToTypeScheduler(int column) const {
-    if(column == indexColumnDaily) {
-        return TypeSchedulers.at(1);
-    } else if(column == indexColumnWeekly) {
-        return TypeSchedulers.at(2);
-    } else if(column == indexColumnMonthly) {
-        return TypeSchedulers.at(3);
-    } else if(column == indexColumnYearly) {
-        return TypeSchedulers.at(4);
-    }
+    record.setValue(GlobalValues::SQL_COLUMNNAME_MONTHLY, QVariant(TypeSchedulers.at(TypeSchedulerMonthly).convertToSameUnit(dailyValue)));
+    record.setGenerated(GlobalValues::SQL_COLUMNNAME_MONTHLY, true);
 
-    // fallback to NONE
-    return TypeSchedulers.at(0);
-}
-
-QVariant EntryModel::data(const QModelIndex &item, int role) const {
-    if (role == Qt::DisplayRole) {
-        if (
-                item.column() == indexColumnDaily ||
-                item.column() == indexColumnWeekly ||
-                item.column() == indexColumnMonthly ||
-                item.column() == indexColumnYearly
-         ) {
-            auto scheduler = mapIndexColumnToTypeScheduler(item.column());
-            auto daily = calculateDailyValue(item);
-            auto formattedString = QLocale().toCurrencyString(scheduler.convertToSameUnit(daily), " ");
-            return QVariant(formattedString);
-        }
-    }
-    return QSqlTableModel::data(item, role);
-}
-
-int EntryModel::getFieldIndexDaily() const {
-    return indexColumnDaily;
-}
-
-int EntryModel::getFieldIndexWeekly() const {
-    return indexColumnWeekly;
-}
-
-int EntryModel::getFieldIndexMonthly() const {
-    return indexColumnMonthly;
-}
-
-int EntryModel::getFieldIndexYearly() const {
-    return indexColumnYearly;
+    record.setValue(GlobalValues::SQL_COLUMNNAME_YEARLY, QVariant(TypeSchedulers.at(TypeSchedulerYearly).convertToSameUnit(dailyValue)));
+    record.setGenerated(GlobalValues::SQL_COLUMNNAME_YEARLY, true);
 }

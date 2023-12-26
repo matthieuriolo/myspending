@@ -33,6 +33,11 @@ private:
             + GlobalValues::SQL_COLUMNNAME_DESCRIPTION + " varchar, "
             + GlobalValues::SQL_COLUMNNAME_VALUE + " double, "
             + GlobalValues::SQL_COLUMNNAME_TYPE + " integer, "
+            + GlobalValues::SQL_COLUMNNAME_DAILY + " double, "
+            + GlobalValues::SQL_COLUMNNAME_WEEKLY + " double, "
+            + GlobalValues::SQL_COLUMNNAME_MONTHLY + " double, "
+            + GlobalValues::SQL_COLUMNNAME_YEARLY + " double, "
+
             + "FOREIGN KEY ("
                 + GlobalValues::SQL_COLUMNNAME_CATEGORY_ID + ") REFERENCES "
                 + GlobalValues::SQL_TABLENAME_CATEGORY + " (" + GlobalValues::SQL_COLUMNNAME_ID + ")"

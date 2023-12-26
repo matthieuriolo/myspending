@@ -147,7 +147,11 @@
         </item>
        </layout>
       </widget>
-      <widget class="QTableView" name="entryView"/>
+      <widget class="QTableView" name="entryView">
+       <property name="sortingEnabled">
+        <bool>true</bool>
+       </property>
+      </widget>
      </widget>
     </item>
    </layout>

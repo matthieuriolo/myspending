@@ -39,11 +39,10 @@ MainWindow::MainWindow(QWidget *parent)
     modelEntry->setHeaderData(modelEntry->fieldIndex(GlobalValues::SQL_COLUMNNAME_DESCRIPTION), Qt::Horizontal, QObject::tr("description"));
     modelEntry->setHeaderData(modelEntry->fieldIndex(GlobalValues::SQL_COLUMNNAME_TYPE), Qt::Horizontal, QObject::tr("schedule"));
     modelEntry->setHeaderData(modelEntry->fieldIndex(GlobalValues::SQL_COLUMNNAME_VALUE), Qt::Horizontal, QObject::tr("value"));
-    modelEntry->setHeaderData(modelEntry->getFieldIndexDaily(), Qt::Horizontal, QObject::tr("daily"));
-    modelEntry->setHeaderData(modelEntry->getFieldIndexWeekly(), Qt::Horizontal, QObject::tr("weekly"));
-    modelEntry->setHeaderData(modelEntry->getFieldIndexMonthly(), Qt::Horizontal, QObject::tr("monthly"));
-    modelEntry->setHeaderData(modelEntry->getFieldIndexYearly(), Qt::Horizontal, QObject::tr("yearly"));
-
+    modelEntry->setHeaderData(modelEntry->fieldIndex(GlobalValues::SQL_COLUMNNAME_DAILY), Qt::Horizontal, QObject::tr("daily"));
+    modelEntry->setHeaderData(modelEntry->fieldIndex(GlobalValues::SQL_COLUMNNAME_WEEKLY), Qt::Horizontal, QObject::tr("weekly"));
+    modelEntry->setHeaderData(modelEntry->fieldIndex(GlobalValues::SQL_COLUMNNAME_MONTHLY), Qt::Horizontal, QObject::tr("monthly"));
+    modelEntry->setHeaderData(modelEntry->fieldIndex(GlobalValues::SQL_COLUMNNAME_YEARLY), Qt::Horizontal, QObject::tr("yearly"));
 
     ui->entryView->setModel(modelEntry);
     ui->entryView->setSelectionMode(QAbstractItemView::SelectionMode::SingleSelection);
@@ -72,7 +71,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->actionNew_entry, SIGNAL(triggered()), this, SLOT(actionNewEntry()));
     connect(ui->actionDelete_entry, SIGNAL(triggered()), this, SLOT(actionDeleteEntry()));
 
-    connect(modelEntry, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)), this, SLOT(entryModelChanged()));
+    connect(modelEntry, SIGNAL(dataChanged(QModelIndex, QModelIndex, QVector<int>)), this, SLOT(entryModelChanged()));
 }
 
 
@@ -238,16 +237,17 @@ void MainWindow::entryModelChanged() {
 }
 
 void MainWindow::recalculateTotalSchedule() {
-    auto sumDailies = 0.0;
-    for (int rowIndex = 0; rowIndex < modelEntry->rowCount(); ++rowIndex) {
-        QModelIndex index = modelEntry->index(rowIndex, modelEntry->getFieldIndexDaily());
-        sumDailies += index.data().toDouble();
-    }
+// TODO
+//    auto sumDailies = 0.0;
+//    for (int rowIndex = 0; rowIndex < modelEntry->rowCount(); ++rowIndex) {
+//        QModelIndex index = modelEntry->index(rowIndex, modelEntry->getFieldIndexDaily());
+//        sumDailies += index.data().toDouble();
+//    }
 
-    ui->labelDaily->setText(QLocale().toCurrencyString(TypeSchedulers.at(1).convertToSameUnit(sumDailies), " "));
-    ui->labelWeekly->setText(QLocale().toCurrencyString(TypeSchedulers.at(2).convertToSameUnit(sumDailies), " "));
-    ui->labelMonthly->setText(QLocale().toCurrencyString(TypeSchedulers.at(3).convertToSameUnit(sumDailies), " "));
-    ui->labelYearly->setText(QLocale().toCurrencyString(TypeSchedulers.at(4).convertToSameUnit(sumDailies), " "));
+//    ui->labelDaily->setText(QLocale().toCurrencyString(TypeSchedulers.at(1).convertToSameUnit(sumDailies), " "));
+//    ui->labelWeekly->setText(QLocale().toCurrencyString(TypeSchedulers.at(2).convertToSameUnit(sumDailies), " "));
+//    ui->labelMonthly->setText(QLocale().toCurrencyString(TypeSchedulers.at(3).convertToSameUnit(sumDailies), " "));
+//    ui->labelYearly->setText(QLocale().toCurrencyString(TypeSchedulers.at(4).convertToSameUnit(sumDailies), " "));
 }
 
 MainWindow::~MainWindow()
