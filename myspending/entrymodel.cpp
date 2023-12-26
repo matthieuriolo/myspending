@@ -1,6 +1,7 @@
 #include "entrymodel.h"
 #include "globals.h"
 #include "typeenum.h"
+#include "QLocale"
 
 EntryModel::EntryModel(QObject *parent, QSqlDatabase db) : QSqlTableModel(parent, db)
 {}
@@ -69,7 +70,8 @@ QVariant EntryModel::data(const QModelIndex &item, int role) const {
          ) {
             auto scheduler = mapIndexColumnToTypeScheduler(item.column());
             auto daily = calculateDailyValue(item);
-            return QVariant(QString("%1").arg(scheduler.convertToSameUnit(daily), 0, 'f', 2));
+            auto formattedString = QLocale().toCurrencyString(scheduler.convertToSameUnit(daily), " ");
+            return QVariant(formattedString);
         }
     }
     return QSqlTableModel::data(item, role);
