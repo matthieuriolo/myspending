@@ -12,18 +12,18 @@ EntryModel::EntryModel(QObject *parent, QSqlDatabase db) : QSqlTableModel(parent
 void EntryModel::setTable(const QString &tableName) {
     QSqlTableModel::setTable(tableName);
 
-    editableColumns.clear();
-    editableColumns.push_back(fieldIndex(GlobalValues::SQL_COLUMNNAME_DAILY));
-    editableColumns.push_back(fieldIndex(GlobalValues::SQL_COLUMNNAME_WEEKLY));
-    editableColumns.push_back(fieldIndex(GlobalValues::SQL_COLUMNNAME_MONTHLY));
-    editableColumns.push_back(fieldIndex(GlobalValues::SQL_COLUMNNAME_YEARLY));
+    virtualValueColumns.clear();
+    virtualValueColumns.push_back(fieldIndex(GlobalValues::SQL_COLUMNNAME_DAILY));
+    virtualValueColumns.push_back(fieldIndex(GlobalValues::SQL_COLUMNNAME_WEEKLY));
+    virtualValueColumns.push_back(fieldIndex(GlobalValues::SQL_COLUMNNAME_MONTHLY));
+    virtualValueColumns.push_back(fieldIndex(GlobalValues::SQL_COLUMNNAME_YEARLY));
 }
 
 Qt::ItemFlags EntryModel::flags( const QModelIndex & index ) const {
     auto flags = QSqlTableModel::flags(index);
-    bool isNotEditable = (std::find(editableColumns.begin(), editableColumns.end(), index.column()) != editableColumns.end());
+    bool isVirtualValueColumn = (std::find(virtualValueColumns.begin(), virtualValueColumns.end(), index.column()) != virtualValueColumns.end());
 
-    if (isNotEditable) {
+    if (isVirtualValueColumn) {
         return flags & (~Qt::ItemIsEditable);
      } else {
         return flags;
@@ -47,4 +47,18 @@ void EntryModel::beforeUpdate(int, QSqlRecord &record) {
 
     record.setValue(GlobalValues::SQL_COLUMNNAME_YEARLY, QVariant(TypeSchedulers.at(TypeSchedulerYearly).convertToSameUnit(dailyValue)));
     record.setGenerated(GlobalValues::SQL_COLUMNNAME_YEARLY, true);
+}
+
+QVariant EntryModel::data(const QModelIndex &item, int role) const {
+    if (role == Qt::DisplayRole) {
+        bool isVirtualValueColumn = (std::find(virtualValueColumns.begin(), virtualValueColumns.end(), item.column()) != virtualValueColumns.end());
+
+
+        if (isVirtualValueColumn) {
+            auto value = QSqlTableModel::data(item, role);
+            return QVariant(QLocale().toCurrencyString(value.toDouble(), " "));
+        }
+    }
+
+    return QSqlTableModel::data(item, role);
 }
