@@ -1,12 +1,12 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "dbmanager.h"
 #include "messagebox.h"
 #include "entrydelegate.h"
 #include "typeenum.h"
 
-MainWindow::MainWindow(QWidget *parent)
+MainWindow::MainWindow(DbManager &dbManager, QWidget *parent)
     : QMainWindow(parent)
+    , dbManager(dbManager)
     , ui(new Ui::MainWindow)
 {
     // setup UI behaviour
@@ -237,17 +237,14 @@ void MainWindow::entryModelChanged() {
 }
 
 void MainWindow::recalculateTotalSchedule() {
-// TODO
-//    auto sumDailies = 0.0;
-//    for (int rowIndex = 0; rowIndex < modelEntry->rowCount(); ++rowIndex) {
-//        QModelIndex index = modelEntry->index(rowIndex, modelEntry->getFieldIndexDaily());
-//        sumDailies += index.data().toDouble();
-//    }
+    auto currentIndex = ui->categoryView->currentIndex();
+    auto categoryIdIndex = modelCategory->index(currentIndex.row(), modelEntry->fieldIndex(GlobalValues::SQL_COLUMNNAME_ID));
+    auto sumDaily = dbManager.sumDailyValues(categoryIdIndex.data().toInt());
 
-//    ui->labelDaily->setText(QLocale().toCurrencyString(TypeSchedulers.at(1).convertToSameUnit(sumDailies), " "));
-//    ui->labelWeekly->setText(QLocale().toCurrencyString(TypeSchedulers.at(2).convertToSameUnit(sumDailies), " "));
-//    ui->labelMonthly->setText(QLocale().toCurrencyString(TypeSchedulers.at(3).convertToSameUnit(sumDailies), " "));
-//    ui->labelYearly->setText(QLocale().toCurrencyString(TypeSchedulers.at(4).convertToSameUnit(sumDailies), " "));
+    ui->labelDaily->setText(QLocale().toCurrencyString(TypeSchedulers.at(TypeSchedulerDaily).convertToSameUnit(sumDaily), " "));
+    ui->labelWeekly->setText(QLocale().toCurrencyString(TypeSchedulers.at(TypeSchedulerWeekly).convertToSameUnit(sumDaily), " "));
+    ui->labelMonthly->setText(QLocale().toCurrencyString(TypeSchedulers.at(TypeSchedulerMonthly).convertToSameUnit(sumDaily), " "));
+    ui->labelYearly->setText(QLocale().toCurrencyString(TypeSchedulers.at(TypeSchedulerYearly).convertToSameUnit(sumDaily), " "));
 }
 
 MainWindow::~MainWindow()

@@ -5,6 +5,7 @@
 #include <QtSql>
 #include <QString>
 #include "entrymodel.h"
+#include "dbmanager.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -16,10 +17,11 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = nullptr);
+    MainWindow(DbManager& dbManager, QWidget *parent = nullptr);
     ~MainWindow();
 
 private:
+    DbManager& dbManager;
     Ui::MainWindow *ui;
     QSqlTableModel* modelCategory;
     EntryModel* modelEntry;

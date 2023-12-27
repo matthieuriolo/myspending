@@ -38,6 +38,22 @@ bool DbManager::initialize() {
     return true;
 }
 
+double DbManager::sumDailyValues(int categoryId) {
+    auto query = "SELECT SUM(" + GlobalValues::SQL_COLUMNNAME_DAILY + ") FROM " + GlobalValues::SQL_TABLENAME_ENTRY + " WHERE " + GlobalValues::SQL_COLUMNNAME_CATEGORY_ID + " = " + QString::number(categoryId) + ";";
+
+    QSqlQuery q;
+    if (!q.exec(query)) {
+        MessageBox::errorSQL(q.lastError());
+        return 0;
+    }
+
+    if (!q.next()) {
+        MessageBox::errorSQL(q.lastError());
+        return 0;
+    }
+
+    return q.value(0).toDouble();
+}
 
 bool DbManager::driverInstalled() {
     if (!QSqlDatabase::drivers().contains(GlobalValues::SQL_CONNECTION_DEFAULT_NAME)) {

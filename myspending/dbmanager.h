@@ -9,13 +9,17 @@ using namespace std;
 
 class DbManager {
 public:
+
+
     DbManager() {}
 
     bool initialize();
 
-    QSqlDatabase db;
+    double sumDailyValues(int category_id);
 
 private:
+    QSqlDatabase db;
+
     map<QString, QString> sqlCreateTable = {
         // TODO unique constaint entry.name
         {
