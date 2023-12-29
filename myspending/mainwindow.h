@@ -25,6 +25,11 @@ private:
     Ui::MainWindow *ui;
     QSqlTableModel* modelCategory;
     EntryModel* modelEntry;
+    QToolBar* toolbar;
+    QAction* toolbarActionNewCategory;
+    QAction* toolbarActionDeleteCategory;
+    QAction* toolbarActionNewEntry;
+    QAction* toolbarActionDeleteEntry;
 
     void preselectFirstCategory();
     void setupEntryTableColumnStretching();

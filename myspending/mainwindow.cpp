@@ -32,6 +32,7 @@ MainWindow::MainWindow(DbManager &dbManager, QWidget *parent)
         return;
     }
 
+    // setup entry view
     modelEntry = new EntryModel(ui->entryView);
     modelEntry->setTable(GlobalValues::SQL_TABLENAME_ENTRY);
     modelEntry->setEditStrategy(QSqlTableModel::OnFieldChange);
@@ -57,6 +58,15 @@ MainWindow::MainWindow(DbManager &dbManager, QWidget *parent)
 
     ui->entryView->setItemDelegate(new EntryDelegate(ui->entryView, modelEntry->fieldIndex(GlobalValues::SQL_COLUMNNAME_TYPE)));
 
+    // setup toolbar
+    toolbar = addToolBar("test");
+    toolbar->setMovable(false);
+    toolbar->addAction(toolbarActionNewCategory = new QAction(QIcon(":/myspending/category-add.png"), "test"));
+    toolbar->addAction(toolbarActionDeleteCategory = new QAction(QIcon(":/myspending/category-remove.png"), "test"));
+    toolbar->addAction(toolbarActionNewEntry = new QAction(QIcon(":/myspending/entry-add.png"), "test"));
+    toolbar->addAction(toolbarActionDeleteEntry = new QAction(QIcon(":/myspending/entry-remove.png"), "test"));
+
+    // pre initialize selection & CO
     preselectFirstCategory();
     setupEntryTableColumnStretching();
     recalculateTotalSchedule();
@@ -72,6 +82,14 @@ MainWindow::MainWindow(DbManager &dbManager, QWidget *parent)
     connect(ui->actionDelete_entry, SIGNAL(triggered()), this, SLOT(actionDeleteEntry()));
 
     connect(modelEntry, SIGNAL(dataChanged(QModelIndex, QModelIndex, QVector<int>)), this, SLOT(entryModelChanged()));
+
+
+
+
+    connect(toolbarActionNewCategory, SIGNAL(triggered(bool)), this, SLOT(actionNewCategory()));
+    connect(toolbarActionDeleteCategory, SIGNAL(triggered(bool)), this, SLOT(actionDeleteCategory()));
+    connect(toolbarActionNewEntry, SIGNAL(triggered(bool)), this, SLOT(actionNewEntry()));
+    connect(toolbarActionDeleteEntry, SIGNAL(triggered(bool)), this, SLOT(actionDeleteEntry()));
 }
 
 
@@ -104,12 +122,17 @@ void MainWindow::selectCategory(QModelIndex* index)
         pk = record.value(GlobalValues::SQL_COLUMNNAME_ID).toLongLong();
         ui->actionDelete_category->setEnabled(true);
         ui->actionNew_entry->setEnabled(true);
+        toolbarActionDeleteCategory->setEnabled(true);
+        toolbarActionNewEntry->setEnabled(true);
     } else {
         ui->actionDelete_category->setEnabled(false);
         ui->actionNew_entry->setEnabled(false);
+        toolbarActionDeleteCategory->setEnabled(false);
+        toolbarActionNewEntry->setEnabled(false);
     }
 
     ui->actionDelete_entry->setEnabled(false);
+    toolbarActionDeleteEntry->setEnabled(false);
     modelEntry->setFilter(GlobalValues::SQL_COLUMNNAME_CATEGORY_ID + " = " + QString::number(pk));
 }
 
@@ -128,8 +151,10 @@ void MainWindow::entrySelectionChanged(QItemSelection currentSelection)
 {
     if(currentSelection.isEmpty()) {
         ui->actionDelete_entry->setEnabled(false);
+        toolbarActionDeleteEntry->setEnabled(false);
     } else {
         ui->actionDelete_entry->setEnabled(true);
+        toolbarActionDeleteEntry->setEnabled(true);
     }
 }
 
@@ -249,6 +274,12 @@ void MainWindow::recalculateTotalSchedule() {
 
 MainWindow::~MainWindow()
 {
+    delete toolbar;
+    delete toolbarActionNewCategory;
+    delete toolbarActionDeleteCategory;
+    delete toolbarActionNewEntry;
+    delete toolbarActionDeleteEntry;
+
     delete modelCategory;
     delete modelEntry;
     delete ui;
