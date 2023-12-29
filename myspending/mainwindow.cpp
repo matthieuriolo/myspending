@@ -59,7 +59,7 @@ MainWindow::MainWindow(DbManager &dbManager, QWidget *parent)
     ui->entryView->setItemDelegate(new EntryDelegate(ui->entryView, modelEntry->fieldIndex(GlobalValues::SQL_COLUMNNAME_TYPE)));
 
     // setup toolbar
-    toolbar = addToolBar("test");
+    toolbar = addToolBar(GlobalValues::APP_NAME);
     toolbar->setMovable(false);
     toolbar->addAction(toolbarActionNewCategory = new QAction(QIcon(":/myspending/category-add.png"), QCoreApplication::translate("MainWindow", "New category", nullptr)));
     toolbar->addAction(toolbarActionDeleteCategory = new QAction(QIcon(":/myspending/category-remove.png"), QCoreApplication::translate("MainWindow", "Delete category", nullptr)));
