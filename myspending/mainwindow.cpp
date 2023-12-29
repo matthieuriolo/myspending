@@ -61,10 +61,10 @@ MainWindow::MainWindow(DbManager &dbManager, QWidget *parent)
     // setup toolbar
     toolbar = addToolBar("test");
     toolbar->setMovable(false);
-    toolbar->addAction(toolbarActionNewCategory = new QAction(QIcon(":/myspending/category-add.png"), "test"));
-    toolbar->addAction(toolbarActionDeleteCategory = new QAction(QIcon(":/myspending/category-remove.png"), "test"));
-    toolbar->addAction(toolbarActionNewEntry = new QAction(QIcon(":/myspending/entry-add.png"), "test"));
-    toolbar->addAction(toolbarActionDeleteEntry = new QAction(QIcon(":/myspending/entry-remove.png"), "test"));
+    toolbar->addAction(toolbarActionNewCategory = new QAction(QIcon(":/myspending/category-add.png"), QCoreApplication::translate("MainWindow", "New category", nullptr)));
+    toolbar->addAction(toolbarActionDeleteCategory = new QAction(QIcon(":/myspending/category-remove.png"), QCoreApplication::translate("MainWindow", "Delete category", nullptr)));
+    toolbar->addAction(toolbarActionNewEntry = new QAction(QIcon(":/myspending/entry-add.png"), QCoreApplication::translate("MainWindow", "New entry", nullptr)));
+    toolbar->addAction(toolbarActionDeleteEntry = new QAction(QIcon(":/myspending/entry-remove.png"), QCoreApplication::translate("MainWindow", "delete entry", nullptr)));
 
     // pre initialize selection & CO
     preselectFirstCategory();
