@@ -6,10 +6,9 @@
 namespace GlobalValues {
     static const QString APP_NAME = "MySpending";
 
-
     static const QString SQL_TYPE = "QSQLITE";
     static const QString SQL_CONNECTION_DEFAULT_NAME = "QSQLITE";
-
+    static const QString SQL_DB_PATH = "myspending-data-v1.sqlite";
 
     static const QString SQL_TABLENAME_CATEGORY = "category";
     static const QString SQL_TABLENAME_ENTRY = "entry";

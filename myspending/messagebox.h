@@ -10,6 +10,8 @@ private:
 public:
 
     static void errorMissingSQLDriver();
+    static void errorNoWritableLocationFound();
+    static void errorFailedToCreateWriteableDirectory(QString &path);
     static void errorSQL(const QSqlError &err, QWidget* parent = nullptr);
 };
 

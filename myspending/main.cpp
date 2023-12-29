@@ -20,9 +20,16 @@ int main(int argc, char *argv[])
         }
     }
 
+    QCommandLineParser parser;
+    QString flagM = "m";
+    parser.addOptions({
+           {flagM, QCoreApplication::translate("main", "Instead of using the physical the database the memory database with testdata is used")}
+    });
+
+    parser.process(application);
 
     DbManager dbManager;
-    if (!dbManager.initialize()) {
+    if (!dbManager.initialize(parser.isSet(flagM))) {
         return -1;
     }
 

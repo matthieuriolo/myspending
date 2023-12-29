@@ -13,7 +13,7 @@ public:
 
     DbManager() {}
 
-    bool initialize();
+    bool initialize(bool inMemory);
 
     double sumDailyValues(int category_id);
 

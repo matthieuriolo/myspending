@@ -3,14 +3,34 @@
 #include <vector>
 #include "messagebox.h"
 
-
-bool DbManager::initialize() {
+#include<QDebug>
+bool DbManager::initialize(bool inMemory) {
     if (!driverInstalled()) {
         return false;
     }
 
     db = QSqlDatabase::addDatabase(GlobalValues::SQL_CONNECTION_DEFAULT_NAME);
-    db.setDatabaseName(":memory:");
+    if (inMemory) {
+        qDebug() << "Storing data in memory";
+        db.setDatabaseName(":memory:");
+    } else {
+        auto writeableDirectory = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
+        if (writeableDirectory.isEmpty()) {
+            MessageBox::errorNoWritableLocationFound();
+            return false;
+        }
+
+        if (!QDir().mkpath(writeableDirectory)) {
+            MessageBox::errorFailedToCreateWriteableDirectory(writeableDirectory);
+            return false;
+        }
+
+        auto sqlFile = QDir(writeableDirectory).absoluteFilePath(GlobalValues::SQL_DB_PATH);
+
+        qDebug() << "Storing data in: " + sqlFile;
+        db.setDatabaseName(sqlFile);
+    }
+
 
     if (!db.open()) {
         MessageBox::errorSQL(db.lastError());
@@ -29,10 +49,13 @@ bool DbManager::initialize() {
         return false;
     }
 
-    q = testData();
-    if (q.type() != QSqlError::NoError) {
-        MessageBox::errorSQL(q);
-        return false;
+
+    if (inMemory) {
+        q = testData();
+        if (q.type() != QSqlError::NoError) {
+            MessageBox::errorSQL(q);
+            return false;
+        }
     }
 
     return true;
