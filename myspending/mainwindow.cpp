@@ -76,15 +76,16 @@ MainWindow::MainWindow(DbManager &dbManager, QWidget *parent)
     connect(ui->entryView->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)), this, SLOT(entrySelectionChanged(QItemSelection)));
 
     connect(ui->actionExit, SIGNAL(triggered()), this, SLOT(actionExit()));
+
     connect(ui->actionNew_category, SIGNAL(triggered()), this, SLOT(actionNewCategory()));
     connect(ui->actionDelete_category, SIGNAL(triggered()), this, SLOT(actionDeleteCategory()));
     connect(ui->actionNew_entry, SIGNAL(triggered()), this, SLOT(actionNewEntry()));
     connect(ui->actionDelete_entry, SIGNAL(triggered()), this, SLOT(actionDeleteEntry()));
 
+    connect(ui->actionExport, SIGNAL(triggered()), this, SLOT(actionExport()));
+
+
     connect(modelEntry, SIGNAL(dataChanged(QModelIndex, QModelIndex, QVector<int>)), this, SLOT(entryModelChanged()));
-
-
-
 
     connect(toolbarActionNewCategory, SIGNAL(triggered(bool)), this, SLOT(actionNewCategory()));
     connect(toolbarActionDeleteCategory, SIGNAL(triggered(bool)), this, SLOT(actionDeleteCategory()));
@@ -255,6 +256,25 @@ void MainWindow::actionDeleteEntry() {
             }
         }
     }
+}
+
+void MainWindow::actionExport() {
+    // TODO
+    auto fileName = QFileDialog::getSaveFileName(this);
+
+    if (!fileName.isEmpty()) {
+        dbManager.exportTo(fileName);
+    }
+}
+
+
+void MainWindow::actionImport() {
+    // TODO
+//    auto fileName = QFileDialog::getOpenFileName(this);
+
+//    if (!fileName.isEmpty()) {
+//        dbManager.exportTo(fileName);
+//    }
 }
 
 void MainWindow::entryModelChanged() {

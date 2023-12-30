@@ -14,6 +14,10 @@ void MessageBox::errorFailedToCreateWriteableDirectory(QString &path) {
     QMessageBox::critical(nullptr, GlobalValues::APP_NAME, "Cannot create directory: " + path);
 }
 
+void MessageBox::errorFailedToOpenFile(QString fileName) {
+    QMessageBox::critical(nullptr, GlobalValues::APP_NAME, "Cannot open file: " + fileName);
+}
+
 void MessageBox::errorSQL(const QSqlError &err, QWidget* parent) {
     QMessageBox::critical(parent, GlobalValues::APP_NAME, "Error in database with message: " + err.text());
 }

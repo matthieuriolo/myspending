@@ -123,3 +123,91 @@ QSqlError DbManager::createTables() {
 
     return QSqlError();
 }
+
+// TODO
+const auto MIMETYPE = "application/myspending";
+const auto VERSION = "1";
+const auto SEPARATOR = "\n";
+const qint8 NEXT_OBJECT_EXISTS = 0x0;
+const qint8 NO_OTHER_OBJECT_EXISTS = 0x1;
+
+void DbManager::exportTo(QString fileName) {
+    qDebug() << "Start exporting to " << fileName;
+
+    QFile file(fileName);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+        MessageBox::errorFailedToOpenFile(fileName);
+        return;
+    }
+
+    // write header
+    file.write(MIMETYPE);
+    file.write(SEPARATOR);
+    file.write(VERSION);
+    file.write(SEPARATOR);
+
+    // write data
+    QDataStream out(&file);
+    out.setVersion(QDataStream::Qt_5_0);
+
+    QSqlQuery queryCategories;
+    queryCategories.setForwardOnly(true);
+    if (!queryCategories.exec("SELECT " + GlobalValues::SQL_COLUMNNAME_ID + ", " + GlobalValues::SQL_COLUMNNAME_NAME + " FROM " + GlobalValues::SQL_TABLENAME_CATEGORY)) {
+        MessageBox::errorSQL(queryCategories.lastError());
+        return;
+    }
+
+    while(queryCategories.next()) {
+        qDebug() << "Add category " << queryCategories.value(GlobalValues::SQL_COLUMNNAME_NAME) << "/" << queryCategories.value(GlobalValues::SQL_COLUMNNAME_ID);
+        out << NEXT_OBJECT_EXISTS;
+        out << queryCategories.value(GlobalValues::SQL_COLUMNNAME_NAME);
+
+        QSqlQuery queryEntries;
+        queryEntries.setForwardOnly(true);
+
+        if (!queryEntries.exec("SELECT " + GlobalValues::SQL_COLUMNNAME_DESCRIPTION + ", " + GlobalValues::SQL_COLUMNNAME_TYPE + ", " + GlobalValues::SQL_COLUMNNAME_VALUE + "  FROM " + GlobalValues::SQL_TABLENAME_ENTRY + " WHERE " + GlobalValues::SQL_COLUMNNAME_CATEGORY_ID + " = " + queryCategories.value(GlobalValues::SQL_COLUMNNAME_ID).toString())) {
+            MessageBox::errorSQL(queryEntries.lastError());
+            return;
+        }
+
+        while (queryEntries.next()) {
+            qDebug() << "Add entry " << queryCategories.value(GlobalValues::SQL_COLUMNNAME_DESCRIPTION) << " for category " << queryCategories.value(GlobalValues::SQL_COLUMNNAME_NAME) << "/" << queryCategories.value(GlobalValues::SQL_COLUMNNAME_ID);
+            out << NEXT_OBJECT_EXISTS;
+            out << queryEntries.value(GlobalValues::SQL_COLUMNNAME_DESCRIPTION);
+            out << queryEntries.value(GlobalValues::SQL_COLUMNNAME_TYPE);
+            out << queryEntries.value(GlobalValues::SQL_COLUMNNAME_VALUE);
+        }
+
+        qDebug() << "No more entries for category " << queryCategories.value(GlobalValues::SQL_COLUMNNAME_NAME) << "/" << queryCategories.value(GlobalValues::SQL_COLUMNNAME_ID);
+        out << NO_OTHER_OBJECT_EXISTS;
+    }
+    qDebug() << "No more categories";
+    out << NO_OTHER_OBJECT_EXISTS;
+    file.close();
+
+    qDebug() << "Finished exporting";
+}
+
+void DbManager::importTo(QString fileName) {
+    //    // import
+
+//    out.setVersion(QDataStream::Qt_5_0);
+    //    QDataStream in(&buffer);
+    //    int countCategories;
+    //    in >> countCategories;
+    //    while (countCategories-- > 0) {
+    //        QVariant categoryName;
+    //        in >> categoryName;
+
+    //        int countEntries;
+    //        in >> countEntries;
+    //        while (countEntries-- > 0) {
+    //            QSqlQuery q("INSERT INTO category (name) VALUES(...)");
+    //            q.exec("SELECT last_insert_rowid()");
+    //            auto categoryId = q.value(0);
+
+
+
+    //        }
+    //    }
+}

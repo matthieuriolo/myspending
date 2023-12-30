@@ -17,6 +17,8 @@ public:
 
     double sumDailyValues(int category_id);
 
+    void exportTo(QString fileName);
+    void importTo(QString fileName);
 private:
     QSqlDatabase db;
 
