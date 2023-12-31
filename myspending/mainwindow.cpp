@@ -83,6 +83,7 @@ MainWindow::MainWindow(DbManager &dbManager, QWidget *parent)
     connect(ui->actionDelete_entry, SIGNAL(triggered()), this, SLOT(actionDeleteEntry()));
 
     connect(ui->actionExport, SIGNAL(triggered()), this, SLOT(actionExport()));
+    connect(ui->actionImport, SIGNAL(triggered()), this, SLOT(actionImport()));
 
 
     connect(modelEntry, SIGNAL(dataChanged(QModelIndex, QModelIndex, QVector<int>)), this, SLOT(entryModelChanged()));
@@ -260,6 +261,7 @@ void MainWindow::actionDeleteEntry() {
 
 void MainWindow::actionExport() {
     // TODO
+
     auto fileName = QFileDialog::getSaveFileName(this);
 
     if (!fileName.isEmpty()) {
@@ -270,11 +272,17 @@ void MainWindow::actionExport() {
 
 void MainWindow::actionImport() {
     // TODO
-//    auto fileName = QFileDialog::getOpenFileName(this);
 
-//    if (!fileName.isEmpty()) {
-//        dbManager.exportTo(fileName);
-//    }
+    auto fileName = QFileDialog::getOpenFileName(this);
+
+    if (!fileName.isEmpty()) {
+        dbManager.importTo(fileName);
+    }
+
+    // TODO reload data
+    modelCategory->select();
+    // TODO reload data
+    modelEntry->select();
 }
 
 void MainWindow::entryModelChanged() {

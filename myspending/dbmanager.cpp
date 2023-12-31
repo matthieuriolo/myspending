@@ -160,7 +160,7 @@ void DbManager::exportTo(QString fileName) {
     while(queryCategories.next()) {
         qDebug() << "Add category " << queryCategories.value(GlobalValues::SQL_COLUMNNAME_NAME) << "/" << queryCategories.value(GlobalValues::SQL_COLUMNNAME_ID);
         out << NEXT_OBJECT_EXISTS;
-        out << queryCategories.value(GlobalValues::SQL_COLUMNNAME_NAME);
+        out << queryCategories.value(GlobalValues::SQL_COLUMNNAME_NAME).toString();
 
         QSqlQuery queryEntries;
         queryEntries.setForwardOnly(true);
@@ -173,9 +173,9 @@ void DbManager::exportTo(QString fileName) {
         while (queryEntries.next()) {
             qDebug() << "Add entry " << queryCategories.value(GlobalValues::SQL_COLUMNNAME_DESCRIPTION) << " for category " << queryCategories.value(GlobalValues::SQL_COLUMNNAME_NAME) << "/" << queryCategories.value(GlobalValues::SQL_COLUMNNAME_ID);
             out << NEXT_OBJECT_EXISTS;
-            out << queryEntries.value(GlobalValues::SQL_COLUMNNAME_DESCRIPTION);
-            out << queryEntries.value(GlobalValues::SQL_COLUMNNAME_TYPE);
-            out << queryEntries.value(GlobalValues::SQL_COLUMNNAME_VALUE);
+            out << queryEntries.value(GlobalValues::SQL_COLUMNNAME_DESCRIPTION).toString();
+            out << queryEntries.value(GlobalValues::SQL_COLUMNNAME_TYPE).toInt();
+            out << queryEntries.value(GlobalValues::SQL_COLUMNNAME_VALUE).toDouble();
         }
 
         qDebug() << "No more entries for category " << queryCategories.value(GlobalValues::SQL_COLUMNNAME_NAME) << "/" << queryCategories.value(GlobalValues::SQL_COLUMNNAME_ID);
@@ -189,25 +189,115 @@ void DbManager::exportTo(QString fileName) {
 }
 
 void DbManager::importTo(QString fileName) {
-    //    // import
+    qDebug() << "Start importing from " << fileName;
 
-//    out.setVersion(QDataStream::Qt_5_0);
-    //    QDataStream in(&buffer);
-    //    int countCategories;
-    //    in >> countCategories;
-    //    while (countCategories-- > 0) {
-    //        QVariant categoryName;
-    //        in >> categoryName;
+    QFile file(fileName);
+    if (!file.open(QIODevice::ReadOnly)) {
+        MessageBox::errorFailedToOpenFile(fileName);
+        return;
+    }
 
-    //        int countEntries;
-    //        in >> countEntries;
-    //        while (countEntries-- > 0) {
-    //            QSqlQuery q("INSERT INTO category (name) VALUES(...)");
-    //            q.exec("SELECT last_insert_rowid()");
-    //            auto categoryId = q.value(0);
+    // read header
+    char buffer[64];
+    auto lengthMimeType =  QString(MIMETYPE).size();
+    if (file.read(buffer, lengthMimeType) != lengthMimeType) {
+        MessageBox::errorFailedToOpenFile(fileName);
+        return;
+    }
+
+    buffer[lengthMimeType] = '\0';
+    if (strcmp(MIMETYPE, buffer) != 0) {
+        MessageBox::errorFailedToOpenFile(fileName);
+        return;
+    }
+
+    file.skip(QString(SEPARATOR).size());
+
+    auto lengthVersion =  QString(VERSION).size();
+    if (file.read(buffer, lengthVersion) != lengthVersion) {
+        MessageBox::errorFailedToOpenFile(fileName);
+        return;
+    }
+
+    buffer[lengthVersion] = '\0';
+    if (strcmp(VERSION, buffer) != 0) {
+        MessageBox::errorFailedToOpenFile(fileName);
+        return;
+    }
+
+    file.skip(QString(SEPARATOR).size());
 
 
+    QDataStream in(&file);
+    in.setVersion(QDataStream::Qt_5_0);
 
-    //        }
-    //    }
+    QSqlQuery queryCategory;
+    queryCategory.prepare("INSERT INTO " + GlobalValues::SQL_TABLENAME_CATEGORY + " (" + GlobalValues::SQL_COLUMNNAME_NAME + ") VALUES(:name);");
+    QSqlQuery queryEntry;
+    queryEntry.prepare("INSERT INTO " + GlobalValues::SQL_TABLENAME_ENTRY + " (" + GlobalValues::SQL_COLUMNNAME_DESCRIPTION + ", " + GlobalValues::SQL_COLUMNNAME_TYPE + ", " + GlobalValues::SQL_COLUMNNAME_VALUE + ", " + GlobalValues::SQL_COLUMNNAME_CATEGORY_ID + ") VALUES(:description, :type, :value, :categoryId);");
+
+    QSqlDatabase::database().transaction();
+
+    qint8 objectAvailable;
+    in >> objectAvailable;
+    while (objectAvailable == NEXT_OBJECT_EXISTS) {
+        QString categoryName;
+        in >> categoryName;
+
+        qDebug() << "Importing category: " << categoryName;
+
+        queryCategory.bindValue(":name", QVariant(categoryName));
+        if (!queryCategory.exec()) {
+            MessageBox::errorSQL(queryCategory.lastError());
+            QSqlDatabase::database().rollback();
+            return;
+        }
+
+        if (!queryCategory.exec("SELECT last_insert_rowid()")) {
+            MessageBox::errorSQL(queryCategory.lastError());
+            QSqlDatabase::database().rollback();
+            return;
+        }
+
+        if (!queryCategory.next()) {
+            MessageBox::errorSQL(queryCategory.lastError());
+            QSqlDatabase::database().rollback();
+            return;
+        }
+
+        auto categoryId = queryCategory.value(0).toInt();
+        qDebug() << "Added category: " << categoryName << " with id: " << categoryId;
+
+        in >> objectAvailable;
+        while (objectAvailable == NEXT_OBJECT_EXISTS) {
+            QString description;
+            int type;
+            double value;
+
+            in >> description;
+            in >> type;
+            in >> value;
+
+            qDebug() << "Importing entry: " << description << " for category with id: " << categoryId;
+
+            queryEntry.bindValue(":description", QVariant(description));
+            queryEntry.bindValue(":type", QVariant(type));
+            queryEntry.bindValue(":value", QVariant(value));
+            queryEntry.bindValue(":categoryId", QVariant(categoryId));
+// TODO calculate daily, etc.
+            if (!queryEntry.exec()) {
+                MessageBox::errorSQL(queryEntry.lastError());
+                QSqlDatabase::database().rollback();
+                return;
+            }
+
+            qDebug() << "Added entry for category with id: " << categoryId;
+            in >> objectAvailable;
+        }
+
+        in >> objectAvailable;
+    }
+
+    QSqlDatabase::database().commit();
+    qDebug() << "Finished importing";
 }
