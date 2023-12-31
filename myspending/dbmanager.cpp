@@ -2,8 +2,10 @@
 #include <QtSql>
 #include <vector>
 #include "messagebox.h"
+#include <QDebug>
+#include "typeenum.h"
 
-#include<QDebug>
+
 bool DbManager::initialize(bool inMemory) {
     if (!driverInstalled()) {
         return false;
@@ -171,7 +173,7 @@ void DbManager::exportTo(QString fileName) {
         }
 
         while (queryEntries.next()) {
-            qDebug() << "Add entry " << queryCategories.value(GlobalValues::SQL_COLUMNNAME_DESCRIPTION) << " for category " << queryCategories.value(GlobalValues::SQL_COLUMNNAME_NAME) << "/" << queryCategories.value(GlobalValues::SQL_COLUMNNAME_ID);
+            qDebug() << "Add entry " << queryEntries.value(GlobalValues::SQL_COLUMNNAME_DESCRIPTION) << " for category " << queryCategories.value(GlobalValues::SQL_COLUMNNAME_NAME) << "/" << queryCategories.value(GlobalValues::SQL_COLUMNNAME_ID);
             out << NEXT_OBJECT_EXISTS;
             out << queryEntries.value(GlobalValues::SQL_COLUMNNAME_DESCRIPTION).toString();
             out << queryEntries.value(GlobalValues::SQL_COLUMNNAME_TYPE).toInt();
@@ -232,9 +234,25 @@ void DbManager::importTo(QString fileName) {
     in.setVersion(QDataStream::Qt_5_0);
 
     QSqlQuery queryCategory;
-    queryCategory.prepare("INSERT INTO " + GlobalValues::SQL_TABLENAME_CATEGORY + " (" + GlobalValues::SQL_COLUMNNAME_NAME + ") VALUES(:name);");
+    if(!queryCategory.prepare("INSERT INTO " + GlobalValues::SQL_TABLENAME_CATEGORY + " (" + GlobalValues::SQL_COLUMNNAME_NAME + ") VALUES(:name);")) {
+        MessageBox::errorSQL(queryCategory.lastError());
+        return;
+    }
+
     QSqlQuery queryEntry;
-    queryEntry.prepare("INSERT INTO " + GlobalValues::SQL_TABLENAME_ENTRY + " (" + GlobalValues::SQL_COLUMNNAME_DESCRIPTION + ", " + GlobalValues::SQL_COLUMNNAME_TYPE + ", " + GlobalValues::SQL_COLUMNNAME_VALUE + ", " + GlobalValues::SQL_COLUMNNAME_CATEGORY_ID + ") VALUES(:description, :type, :value, :categoryId);");
+    if(!queryEntry.prepare("INSERT INTO "+ GlobalValues::SQL_TABLENAME_ENTRY + " ("
+                       + GlobalValues::SQL_COLUMNNAME_DESCRIPTION + ", "
+                       + GlobalValues::SQL_COLUMNNAME_TYPE
+                       + ", " + GlobalValues::SQL_COLUMNNAME_VALUE
+                       + ", " + GlobalValues::SQL_COLUMNNAME_CATEGORY_ID
+                       + ", " + GlobalValues::SQL_COLUMNNAME_DAILY
+                       + ", " + GlobalValues::SQL_COLUMNNAME_WEEKLY
+                       + ", " + GlobalValues::SQL_COLUMNNAME_MONTHLY
+                       + ", " + GlobalValues::SQL_COLUMNNAME_YEARLY
+                           + ") VALUES(:description, :type, :value, :categoryId, :daily, :weekly, :monthly, :yearly);")) {
+        MessageBox::errorSQL(queryEntry.lastError());
+        return;
+    }
 
     QSqlDatabase::database().transaction();
 
@@ -253,19 +271,15 @@ void DbManager::importTo(QString fileName) {
             return;
         }
 
-        if (!queryCategory.exec("SELECT last_insert_rowid()")) {
+        auto categoryIdVariant = queryCategory.lastInsertId();
+
+        if (!categoryIdVariant.isValid()) {
             MessageBox::errorSQL(queryCategory.lastError());
             QSqlDatabase::database().rollback();
             return;
         }
 
-        if (!queryCategory.next()) {
-            MessageBox::errorSQL(queryCategory.lastError());
-            QSqlDatabase::database().rollback();
-            return;
-        }
-
-        auto categoryId = queryCategory.value(0).toInt();
+        auto categoryId = categoryIdVariant.toInt();
         qDebug() << "Added category: " << categoryName << " with id: " << categoryId;
 
         in >> objectAvailable;
@@ -284,14 +298,21 @@ void DbManager::importTo(QString fileName) {
             queryEntry.bindValue(":type", QVariant(type));
             queryEntry.bindValue(":value", QVariant(value));
             queryEntry.bindValue(":categoryId", QVariant(categoryId));
-// TODO calculate daily, etc.
+
+            auto dailyValue = TypeSchedulers.at(type).convertToSmallestUnit(value);
+
+            queryEntry.bindValue(":daily", QVariant(TypeSchedulers.at(TypeSchedulerDaily).convertToSameUnit(dailyValue)));
+            queryEntry.bindValue(":weekly", QVariant(TypeSchedulers.at(TypeSchedulerWeekly).convertToSameUnit(dailyValue)));
+            queryEntry.bindValue(":monthly", QVariant(TypeSchedulers.at(TypeSchedulerMonthly).convertToSameUnit(dailyValue)));
+            queryEntry.bindValue(":yearly", QVariant(TypeSchedulers.at(TypeSchedulerYearly).convertToSameUnit(dailyValue)));
+
             if (!queryEntry.exec()) {
                 MessageBox::errorSQL(queryEntry.lastError());
                 QSqlDatabase::database().rollback();
                 return;
             }
 
-            qDebug() << "Added entry for category with id: " << categoryId;
+            qDebug() << "Added entry " << description << " for category with id: " << categoryId;
             in >> objectAvailable;
         }
 
