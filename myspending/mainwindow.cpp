@@ -3,6 +3,7 @@
 #include "messagebox.h"
 #include "entrydelegate.h"
 #include "typeenum.h"
+#include "exporter.h"
 
 MainWindow::MainWindow(DbManager &dbManager, QWidget *parent)
     : QMainWindow(parent)
@@ -265,7 +266,7 @@ void MainWindow::actionExport() {
     auto fileName = QFileDialog::getSaveFileName(this);
 
     if (!fileName.isEmpty()) {
-        dbManager.exportTo(fileName);
+        Exporter().exportTo(dbManager, fileName);
     }
 }
 
@@ -276,13 +277,11 @@ void MainWindow::actionImport() {
     auto fileName = QFileDialog::getOpenFileName(this);
 
     if (!fileName.isEmpty()) {
-        dbManager.importTo(fileName);
+//        dbManager.importTo(fileName);
     }
 
     // TODO reload data
     modelCategory->select();
-    // TODO reload data
-    modelEntry->select();
 }
 
 void MainWindow::entryModelChanged() {
