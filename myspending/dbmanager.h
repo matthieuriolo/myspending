@@ -4,6 +4,7 @@
 #include <QtSql>
 #include <map>
 #include "globals.h"
+#include "dbmanagertraverser.h"
 
 using namespace std;
 
@@ -17,8 +18,10 @@ public:
 
     double sumDailyValues(int category_id);
 
-    void exportTo(QString fileName);
-    void importTo(QString fileName);
+    void traverse(DbManagerTraverser &traverser);
+
+//    void iterateCategories(QDataStream &out, void (*callback)(QDataStream &out, QString name, int id));
+//    void iterateEntries(int categoryId, void (*callback)(QString description, int type, double value));
 private:
     QSqlDatabase db;
 
