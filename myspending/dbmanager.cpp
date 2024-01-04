@@ -110,7 +110,7 @@ void DbManager::traverse(DbManagerTraverser &traverser) {
             traverser.traverseEntry(
                 queryEntries.value(GlobalValues::SQL_COLUMNNAME_DESCRIPTION).toString(),
                 queryEntries.value(GlobalValues::SQL_COLUMNNAME_TYPE).toInt(),
-                queryEntries.value(GlobalValues::SQL_COLUMNNAME_DESCRIPTION).toDouble(),
+                queryEntries.value(GlobalValues::SQL_COLUMNNAME_VALUE).toDouble(),
                 categoryId
             );
         }
