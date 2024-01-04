@@ -5,6 +5,7 @@
 #include <map>
 #include "globals.h"
 #include "dbmanagertraverser.h"
+#include "dbmanagerinserter.h"
 
 using namespace std;
 
@@ -19,9 +20,7 @@ public:
     double sumDailyValues(int category_id);
 
     void traverse(DbManagerTraverser &traverser);
-
-//    void iterateCategories(QDataStream &out, void (*callback)(QDataStream &out, QString name, int id));
-//    void iterateEntries(int categoryId, void (*callback)(QString description, int type, double value));
+    void process(std::function<void(DbManagerInserter&)> processor);
 private:
     QSqlDatabase db;
 
@@ -58,6 +57,29 @@ private:
     bool driverInstalled();
     QSqlError createTables();
     QSqlError testData();
+
+    class QSqlErrorException : public std::exception {
+    private:
+        QSqlError sqlError;
+    public:
+        QSqlErrorException(QSqlError error) : sqlError(error) {}
+        const char* what() const noexcept override {
+            return sqlError.text().toLocal8Bit();
+        }
+        QSqlError error() {
+            return sqlError;
+        }
+    };
+
+    class Inserter : public DbManagerInserter {
+    public:
+        Inserter(QSqlQuery &queryCategory, QSqlQuery &queryEntry);
+        int addCategory(QString name);
+        int addEntry(QString description, int type, double value, int categoryId);
+    private:
+        QSqlQuery &queryCategory;
+        QSqlQuery &queryEntry;
+    };
 };
 
 

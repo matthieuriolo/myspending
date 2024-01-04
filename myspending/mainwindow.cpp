@@ -4,6 +4,7 @@
 #include "entrydelegate.h"
 #include "typeenum.h"
 #include "exporter.h"
+#include "importer.h"
 
 MainWindow::MainWindow(DbManager &dbManager, QWidget *parent)
     : QMainWindow(parent)
@@ -277,7 +278,7 @@ void MainWindow::actionImport() {
     auto fileName = QFileDialog::getOpenFileName(this);
 
     if (!fileName.isEmpty()) {
-//        dbManager.importTo(fileName);
+        dbManager.process(Importer(fileName));
     }
 
     // TODO reload data

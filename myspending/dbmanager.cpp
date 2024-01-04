@@ -167,3 +167,92 @@ QSqlError DbManager::createTables() {
     return QSqlError();
 }
 
+void DbManager::process(std::function<void(DbManagerInserter&)> processor) {
+    db.transaction();
+
+    try {
+
+        QSqlQuery queryCategory;
+        if(!queryCategory.prepare("INSERT INTO " + GlobalValues::SQL_TABLENAME_CATEGORY + " (" + GlobalValues::SQL_COLUMNNAME_NAME + ") VALUES(:" + GlobalValues::SQL_COLUMNNAME_NAME + ");")) {
+            throw QSqlErrorException(queryCategory.lastError());
+        }
+
+        QSqlQuery queryEntry;
+        if(!queryEntry.prepare("INSERT INTO "+ GlobalValues::SQL_TABLENAME_ENTRY + " ("
+                           + GlobalValues::SQL_COLUMNNAME_DESCRIPTION
+                           + ", " + GlobalValues::SQL_COLUMNNAME_TYPE
+                           + ", " + GlobalValues::SQL_COLUMNNAME_VALUE
+                           + ", " + GlobalValues::SQL_COLUMNNAME_CATEGORY_ID
+                           + ", " + GlobalValues::SQL_COLUMNNAME_DAILY
+                           + ", " + GlobalValues::SQL_COLUMNNAME_WEEKLY
+                           + ", " + GlobalValues::SQL_COLUMNNAME_MONTHLY
+                           + ", " + GlobalValues::SQL_COLUMNNAME_YEARLY
+
+                           + ") VALUES("
+
+                           + ":" + GlobalValues::SQL_COLUMNNAME_DESCRIPTION
+                           + ", :" + GlobalValues::SQL_COLUMNNAME_TYPE
+                           + ", :" + GlobalValues::SQL_COLUMNNAME_VALUE
+                           + ", :" + GlobalValues::SQL_COLUMNNAME_CATEGORY_ID
+                           + ", :" + GlobalValues::SQL_COLUMNNAME_DAILY
+                           + ", :" + GlobalValues::SQL_COLUMNNAME_WEEKLY
+                           + ", :" + GlobalValues::SQL_COLUMNNAME_MONTHLY
+                           + ", :" + GlobalValues::SQL_COLUMNNAME_YEARLY
+                           + ");")) {
+            throw QSqlErrorException(queryEntry.lastError());
+        }
+
+        Inserter api = Inserter(queryCategory, queryEntry);
+        processor(api);
+    } catch(QSqlErrorException &error) {
+        MessageBox::errorSQL(error.error());
+        db.rollback();
+    }catch(std::exception &error) {
+        MessageBox::errorException(error);
+        db.rollback();
+    }
+
+    db.commit();
+}
+
+
+DbManager::Inserter::Inserter(QSqlQuery &queryCategory, QSqlQuery &queryEntry) : queryCategory(queryCategory), queryEntry(queryEntry) {}
+
+int DbManager::Inserter::addCategory(QString name) {
+    queryCategory.bindValue(":" + GlobalValues::SQL_COLUMNNAME_NAME, QVariant(name));
+    if (!queryCategory.exec()) {
+        throw QSqlErrorException(queryCategory.lastError());
+    }
+
+    auto categoryId = queryCategory.lastInsertId();
+    if (!categoryId.isValid()) {
+        throw QSqlErrorException(queryCategory.lastError());
+    }
+
+    return categoryId.toInt();
+}
+
+int DbManager::Inserter::addEntry(QString description, int type, double value, int categoryId) {
+    queryEntry.bindValue(":" + GlobalValues::SQL_COLUMNNAME_DESCRIPTION, QVariant(description));
+    queryEntry.bindValue(":" + GlobalValues::SQL_COLUMNNAME_TYPE, QVariant(type));
+    queryEntry.bindValue(":" + GlobalValues::SQL_COLUMNNAME_VALUE, QVariant(value));
+    queryEntry.bindValue(":" + GlobalValues::SQL_COLUMNNAME_CATEGORY_ID, QVariant(categoryId));
+
+    auto dailyValue = TypeSchedulers.at(type).convertToSmallestUnit(value);
+
+    queryEntry.bindValue(":" + GlobalValues::SQL_COLUMNNAME_DAILY, QVariant(TypeSchedulers.at(TypeSchedulerDaily).convertToSameUnit(dailyValue)));
+    queryEntry.bindValue(":" + GlobalValues::SQL_COLUMNNAME_WEEKLY, QVariant(TypeSchedulers.at(TypeSchedulerWeekly).convertToSameUnit(dailyValue)));
+    queryEntry.bindValue(":" + GlobalValues::SQL_COLUMNNAME_MONTHLY, QVariant(TypeSchedulers.at(TypeSchedulerMonthly).convertToSameUnit(dailyValue)));
+    queryEntry.bindValue(":" + GlobalValues::SQL_COLUMNNAME_YEARLY, QVariant(TypeSchedulers.at(TypeSchedulerYearly).convertToSameUnit(dailyValue)));
+
+    if (!queryEntry.exec()) {
+        throw QSqlErrorException(queryEntry.lastError());
+    }
+
+    auto entryId = queryEntry.lastInsertId();
+    if (!entryId.isValid()) {
+        QSqlErrorException(queryEntry.lastError());
+    }
+
+    return entryId.toInt();
+}

@@ -13,6 +13,7 @@ SOURCES += \
     entrydelegate.cpp \
     entrymodel.cpp \
     exporter.cpp \
+    importer.cpp \
     main.cpp \
     mainwindow.cpp \
     messagebox.cpp \
@@ -20,11 +21,13 @@ SOURCES += \
 
 HEADERS += \
     dbmanager.h \
+    dbmanagerinserter.h \
     dbmanagertraverser.h \
     entrydelegate.h \
     entrymodel.h \
     exporter.h \
     globals.h \
+    importer.h \
     mainwindow.h \
     messagebox.h \
     typeenum.h \
