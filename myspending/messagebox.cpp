@@ -2,6 +2,8 @@
 #include <QMessageBox>
 #include "globals.h"
 
+// TODO missing translations...
+
 void MessageBox::errorMissingSQLDriver() {
     QMessageBox::critical(nullptr, GlobalValues::APP_NAME, "Cannot launch " + GlobalValues::APP_NAME + " without SQLite driver");
 }
@@ -22,3 +24,6 @@ void MessageBox::errorSQL(const QSqlError &err, QWidget* parent) {
     QMessageBox::critical(parent, GlobalValues::APP_NAME, "Error in database with message: " + err.text());
 }
 
+void MessageBox::errorException(std::exception &error) {
+    QMessageBox::critical(nullptr, GlobalValues::APP_NAME, QString("Unknown exception was thrown: %1").arg(error.what()));
+}
