@@ -30,6 +30,8 @@ private:
     QAction* toolbarActionDeleteCategory;
     QAction* toolbarActionNewEntry;
     QAction* toolbarActionDeleteEntry;
+    QAction* toolbarActionExport;
+    QAction* toolbarActionImport;
 
     void preselectFirstCategory();
     void setupEntryTableColumnStretching();

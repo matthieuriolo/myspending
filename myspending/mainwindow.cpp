@@ -66,7 +66,9 @@ MainWindow::MainWindow(DbManager &dbManager, QWidget *parent)
     toolbar->addAction(toolbarActionNewCategory = new QAction(QIcon(":/myspending/category-add.png"), QCoreApplication::translate("MainWindow", "New category", nullptr)));
     toolbar->addAction(toolbarActionDeleteCategory = new QAction(QIcon(":/myspending/category-remove.png"), QCoreApplication::translate("MainWindow", "Delete category", nullptr)));
     toolbar->addAction(toolbarActionNewEntry = new QAction(QIcon(":/myspending/entry-add.png"), QCoreApplication::translate("MainWindow", "New entry", nullptr)));
-    toolbar->addAction(toolbarActionDeleteEntry = new QAction(QIcon(":/myspending/entry-remove.png"), QCoreApplication::translate("MainWindow", "delete entry", nullptr)));
+    toolbar->addAction(toolbarActionDeleteEntry = new QAction(QIcon(":/myspending/entry-remove.png"), QCoreApplication::translate("MainWindow", "Delete entry", nullptr)));
+    toolbar->addAction(toolbarActionExport = new QAction(QIcon(":/myspending/category-export.png"), QCoreApplication::translate("MainWindow", "Export...", nullptr)));
+    toolbar->addAction(toolbarActionImport = new QAction(QIcon(":/myspending/category-import.png"), QCoreApplication::translate("MainWindow", "Import...", nullptr)));
 
     // pre initialize selection & CO
     preselectFirstCategory();
@@ -94,6 +96,8 @@ MainWindow::MainWindow(DbManager &dbManager, QWidget *parent)
     connect(toolbarActionDeleteCategory, SIGNAL(triggered(bool)), this, SLOT(actionDeleteCategory()));
     connect(toolbarActionNewEntry, SIGNAL(triggered(bool)), this, SLOT(actionNewEntry()));
     connect(toolbarActionDeleteEntry, SIGNAL(triggered(bool)), this, SLOT(actionDeleteEntry()));
+    connect(toolbarActionExport, SIGNAL(triggered(bool)), this, SLOT(actionExport()));
+    connect(toolbarActionImport, SIGNAL(triggered(bool)), this, SLOT(actionImport()));
 }
 
 
@@ -307,6 +311,8 @@ MainWindow::~MainWindow()
     delete toolbarActionDeleteCategory;
     delete toolbarActionNewEntry;
     delete toolbarActionDeleteEntry;
+    delete toolbarActionExport;
+    delete toolbarActionImport;
 
     delete modelCategory;
     delete modelEntry;
