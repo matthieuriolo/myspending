@@ -65,8 +65,10 @@ MainWindow::MainWindow(DbManager &dbManager, QWidget *parent)
     toolbar->setMovable(false);
     toolbar->addAction(toolbarActionNewCategory = new QAction(QIcon(":/myspending/category-add.png"), QCoreApplication::translate("MainWindow", "New category", nullptr)));
     toolbar->addAction(toolbarActionDeleteCategory = new QAction(QIcon(":/myspending/category-remove.png"), QCoreApplication::translate("MainWindow", "Delete category", nullptr)));
+    toolbar->addSeparator();
     toolbar->addAction(toolbarActionNewEntry = new QAction(QIcon(":/myspending/entry-add.png"), QCoreApplication::translate("MainWindow", "New entry", nullptr)));
     toolbar->addAction(toolbarActionDeleteEntry = new QAction(QIcon(":/myspending/entry-remove.png"), QCoreApplication::translate("MainWindow", "Delete entry", nullptr)));
+    toolbar->addSeparator();
     toolbar->addAction(toolbarActionExport = new QAction(QIcon(":/myspending/category-export.png"), QCoreApplication::translate("MainWindow", "Export...", nullptr)));
     toolbar->addAction(toolbarActionImport = new QAction(QIcon(":/myspending/category-import.png"), QCoreApplication::translate("MainWindow", "Import...", nullptr)));
 
